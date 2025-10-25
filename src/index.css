@@ -1,0 +1,78 @@
+/* src/index.css */
+
+/* 1. Define your custom font */
+@font-face {
+  font-family: 'IEEEPCSfont';
+  src: url('/Milker.otf'); /* Make sure 'Milker.otf' is in your /public folder */
+}
+@font-face {
+  font-family: 'Rockybilly';
+  src: url('/Rockybilly.ttf'); /* Points to the file in your public folder */
+}
+@font-face {
+  font-family: 'made';
+  src: url('/Payton.otf'); /* Points to the file in your public folder */
+}
+
+@font-face {
+  font-family: 'Designed';
+  src: url('/Sakana.ttf');
+}
+@font-face {
+  font-family: 'RACE';
+  src: url('/Race.ttf');
+}
+/* 2. Import Tailwind's base styles */
+@import "tailwindcss";
+
+
+/* 3. Create a utility class to apply your font */
+/* You can now use the 'font-custom' class in your components */
+.font-custom {
+  font-family: 'IEEEPCSfont', sans-serif;
+}
+.font-rocky {
+  font-family: 'Rockybilly', cursive; /* Added 'cursive' as a fallback */
+}
+.font-pinky {
+  font-family: 'made', sans-serif; /* Added 'cursive' as a fallback */
+}
+.font-girly {
+  font-family: 'Designed', sans-serif;
+}
+.font-race {
+  font-family: 'RACE', sans-serif;
+}
+
+
+/* 4. Define your component-specific styles */
+@layer components {
+  /* This is for Frame 1 of the scribble */
+  .scribble-link::before {
+    background-image: url('/ieee-scribble.png');
+  }
+  
+  /* This is for Frame 2 of the scribble */
+  .scribble-link::after {
+    background-image: url('/ieee-scribble-spritepng.png'); 
+  }
+}
+
+
+/* 5. Define your keyframe animations inside the @theme block */
+@theme {
+  @keyframes flickerOn {
+    0%, 49.9% { opacity: 1; }
+    50%, 100% { opacity: 0; }
+  }
+
+  @keyframes flickerOff {
+    0%, 49.9% { opacity: 0; }
+    50%, 100% { opacity: 1; }
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+}
