@@ -83,20 +83,7 @@ export default function SpicesHeroSection() {
 
         </div>
 
-        {/* Product Card - Overlapping on right (responsive positioning) */}
-        <div className="absolute top-48 sm:top-56 md:top-64 lg:top-80 right-4 sm:right-8 md:right-12 lg:right-20 bg-white rounded-2xl sm:rounded-3xl md:rounded-[2rem] shadow-2xl w-[280px] sm:w-[300px] md:w-[320px] lg:w-[340px] z-30">
-          <div className="p-5 sm:p-6 md:p-7 lg:p-9">
-            <div className="mb-6 sm:mb-7 md:mb-8">
-              <div className="flex items-center gap-2 mb-2">
-                <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-[#ff6b4a]"></div>
-              </div>
-              <p className="text-[#ff6b4a] text-xl sm:text-2xl md:text-3xl mt-2">Timut Pepper</p>
-            </div>
-          </div>
-          
-          {/* Bottom right brown circle badge */}
-          <div className="absolute bottom-4 sm:bottom-5 md:bottom-6 lg:bottom-7 right-4 sm:right-5 md:right-6 lg:right-7 w-8 sm:w-10 md:w-12 h-8 sm:h-10 md:h-12 bg-[#5d3a1a] rounded-full shadow-lg"></div>
-        </div>
+        
       </div>
 
       {/* CSS for animation */}

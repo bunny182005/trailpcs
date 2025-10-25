@@ -57,7 +57,7 @@ const TimelineItem = ({ year, children }) => {
   const suffix = year.replace(number, '');
 
   return (
-    <div className="flex flex-col items-center text-center max-w-[100px] sm:max-w-[120px] md:max-w-[150px] lg:max-w-[200px]">
+    <div className="flex flex-col items-center text-center max-w-[100px] sm:max-w-[120px] md:max-w-[150px]  lg:max-w-[200px]">
       <span className="text-3xl sm:text-4xl md:text-5xl font-bold text-black mb-2 sm:mb-3 w-24 sm:w-32 md:w-40 inline-flex justify-center">
         <CountUp
           end={number}
@@ -93,7 +93,7 @@ const Aboutus = () => {
         </div>
         
         {/* Right Side - Split into two sections */}
-        <div className='grid grid-rows-1 lg:grid-rows-2 min-h-[50vh] lg:h-screen'>
+        <div className='grid grid-rows-1  min-h-[50vh] lg:h-screen'>
           {/* Top Section */}
           <div className='bg-gray-100 flex justify-center items-center p-6 sm:p-8 md:p-10 lg:p-8 min-h-[300px]'>
             <div className='text-center max-w-md'>
@@ -109,9 +109,7 @@ const Aboutus = () => {
             </div>
           </div>
           {/* Bottom Section - Canvas */}
-          <div className='bg-white relative min-h-[300px] lg:min-h-0'>
-            <Crazy />
-          </div>
+          
         </div>
       </div>
 

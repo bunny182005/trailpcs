@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 
 const Events = () => {
   const [scrollY, setScrollY] = useState(0);
+  const [currentSlide, setCurrentSlide] = useState(0);
   const containerRef = useRef(null);
   const flagshipRef = useRef(null);
   const navigate = useNavigate();
@@ -66,6 +67,9 @@ const Events = () => {
     { id: 15, title: 'Design Award', imgSrc: '/images/event15.jpg', date: 'May 18, 2021' },
   ];
 
+  // Combine all awards for mobile carousel
+  const allAwards = [...leftColumnAwards, ...centerColumnAwards, ...rightColumnAwards];
+
   const flagshipEvents = [
     {
       id: 1,
@@ -82,6 +86,14 @@ const Events = () => {
       page: 'soty'
     }
   ];
+
+  const nextSlide = () => {
+    setCurrentSlide((prev) => (prev + 1) % allAwards.length);
+  };
+
+  const prevSlide = () => {
+    setCurrentSlide((prev) => (prev - 1 + allAwards.length) % allAwards.length);
+  };
 
   const getTextStyle = () => {
     const textFadeIn = 0.05;
@@ -353,15 +365,70 @@ const Events = () => {
         </div>
       </div>
 
-      {/* Mobile Header - Visible only on mobile */}
-      <div className="lg:hidden min-h-screen flex items-center justify-center bg-gray-50 px-4 py-20">
-        <div className="max-w-2xl mx-auto text-center">
-          <button className="px-4 sm:px-6 py-2 sm:py-3 bg-gray-800 text-white rounded-full text-xs sm:text-sm font-medium mb-8 sm:mb-12">
+      {/* Mobile Carousel Section - Visible only on mobile */}
+      <div className="lg:hidden min-h-screen flex flex-col justify-center bg-gray-50 px-4 py-12">
+        <div className="max-w-2xl mx-auto text-center mb-8">
+          <button className="px-4 sm:px-6 py-2 sm:py-3 bg-gray-800 text-white rounded-full text-xs sm:text-sm font-medium mb-6 sm:mb-8">
             Events
           </button>
-          <h2 className="text-2xl sm:text-3xl md:text-4xl font-light leading-tight">
+          <h2 className="text-xl sm:text-2xl md:text-3xl font-light leading-tight mb-8">
             To truly stand out, you have to break away from the ordinary.
           </h2>
+        </div>
+
+        {/* Carousel */}
+        <div className="relative max-w-md mx-auto w-full">
+          <div className="relative w-full aspect-[4/5] rounded-lg shadow-xl overflow-hidden">
+            <img
+              src={allAwards[currentSlide].imgSrc}
+              alt={allAwards[currentSlide].title}
+              className="w-full h-full object-cover transition-opacity duration-300"
+            />
+            <div className="absolute inset-0 bg-black bg-opacity-30"></div>
+            <div className="absolute inset-0 p-4 sm:p-6 flex flex-col justify-between text-white">
+              <div>
+                <div className="text-xs font-medium mb-2">W.</div>
+                <h3 className="text-lg sm:text-xl font-bold mb-2">{allAwards[currentSlide].title}</h3>
+                <p className="text-sm mb-1">{allAwards[currentSlide].date}</p>
+                <p className="text-xs opacity-90">Neondoor.</p>
+              </div>
+              <div className="text-xs opacity-75">By Cappen</div>
+            </div>
+          </div>
+
+          {/* Navigation Buttons */}
+          <button
+            onClick={prevSlide}
+            className="absolute left-2 top-1/2 -translate-y-1/2 bg-white bg-opacity-80 hover:bg-opacity-100 rounded-full p-2 shadow-lg transition-all z-10"
+            aria-label="Previous slide"
+          >
+            <svg className="w-5 h-5 sm:w-6 sm:h-6 text-gray-800" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+          </button>
+          <button
+            onClick={nextSlide}
+            className="absolute right-2 top-1/2 -translate-y-1/2 bg-white bg-opacity-80 hover:bg-opacity-100 rounded-full p-2 shadow-lg transition-all z-10"
+            aria-label="Next slide"
+          >
+            <svg className="w-5 h-5 sm:w-6 sm:h-6 text-gray-800" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+          </button>
+
+          {/* Indicators */}
+          <div className="flex justify-center gap-2 mt-4 flex-wrap">
+            {allAwards.map((_, index) => (
+              <button
+                key={index}
+                onClick={() => setCurrentSlide(index)}
+                className={`w-2 h-2 rounded-full transition-all ${
+                  index === currentSlide ? 'bg-gray-800 w-6' : 'bg-gray-400'
+                }`}
+                aria-label={`Go to slide ${index + 1}`}
+              />
+            ))}
+          </div>
         </div>
       </div>
 

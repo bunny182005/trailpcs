@@ -121,6 +121,9 @@ const mediaBlocksData = [
   },
 ];
 
+// Flatten all images for mobile carousel
+const allImages = mediaBlocksData.flatMap(block => block.media);
+
 // --- Component to handle internal looping ---
 function MediaBlock({ block, isAnimating }) {
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -189,7 +192,9 @@ function MediaBlock({ block, isAnimating }) {
 // --- Main component ---
 export default function TeamHeroSection() {
   const [isAnimating, setIsAnimating] = useState(true);
+  const [isPaused, setIsPaused] = useState(false);
   const headingRef = useRef(null);
+  const scrollContainerRef = useRef(null);
 
   useEffect(() => {
     const element = headingRef.current;
@@ -218,26 +223,99 @@ export default function TeamHeroSection() {
     };
   }, []);
 
+  // Auto-scroll effect for mobile
+  useEffect(() => {
+    const scrollContainer = scrollContainerRef.current;
+    if (!scrollContainer || isPaused) return;
+
+    const scroll = () => {
+      if (scrollContainer.scrollLeft >= scrollContainer.scrollWidth - scrollContainer.clientWidth) {
+        scrollContainer.scrollLeft = 0;
+      } else {
+        scrollContainer.scrollLeft += 1;
+      }
+    };
+
+    const intervalId = setInterval(scroll, 30);
+
+    return () => clearInterval(intervalId);
+  }, [isPaused]);
+
   return (
     <div className="relative w-full min-h-screen bg-white overflow-hidden py-12 sm:py-16 md:py-20">
-      {/* Main heading */}
-      <div 
-        ref={headingRef}
-        className="absolute left-4 sm:left-8 md:left-12 lg:left-16 xl:left-24 top-1/2 -translate-y-1/2 z-10 max-w-[calc(100%-2rem)] sm:max-w-[calc(100%-4rem)] md:max-w-2xl"
-      >
-        <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl xl:text-9xl font-bold leading-tight">
-          A Team That's<br />
-          Anything But<br />
-          Ordinary
-        </h1>
+      {/* Desktop Version - LG and above */}
+      <div className="hidden lg:block relative w-full min-h-screen">
+        {/* Main heading */}
+        <div 
+          ref={headingRef}
+          className="absolute left-4 sm:left-8 md:left-12 lg:left-16 xl:left-24 top-1/2 -translate-y-1/2 z-10"
+        >
+          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl xl:text-9xl font-bold leading-tight whitespace-nowrap">
+            A Team That's<br />
+            Anything But<br />
+            Ordinary
+          </h1>
+        </div>
+
+        {/* Image grid */}
+        <div className="absolute right-2 sm:right-4 md:right-8 lg:right-12 xl:right-20 top-1/2 -translate-y-1/2 w-[280px] sm:w-[400px] md:w-[500px] lg:w-[700px] xl:w-[900px] h-[400px] sm:h-[500px] md:h-[550px] lg:h-[650px] xl:h-[700px]">
+          {mediaBlocksData.map((block) => (
+            <MediaBlock key={block.id} block={block} isAnimating={isAnimating} />
+          ))}
+        </div>
       </div>
 
-      {/* Image grid */}
-      <div className="absolute right-2 sm:right-4 md:right-8 lg:right-12 xl:right-20 top-1/2 -translate-y-1/2 w-[280px] sm:w-[400px] md:w-[500px] lg:w-[700px] xl:w-[900px] h-[400px] sm:h-[500px] md:h-[550px] lg:h-[650px] xl:h-[700px]">
-        {mediaBlocksData.map((block) => (
-          <MediaBlock key={block.id} block={block} isAnimating={isAnimating} />
-        ))}
+      {/* Mobile/Tablet Version - Below LG */}
+      <div className="lg:hidden relative w-full min-h-screen flex flex-col items-center justify-center px-4">
+        {/* Single line heading */}
+        <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-center mb-8 md:mb-12">
+          A Team That's Anything But Ordinary
+        </h1>
+
+        {/* Horizontal scrolling carousel */}
+        <div 
+          ref={scrollContainerRef}
+          className="w-full overflow-x-auto scrollbar-hide"
+          style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+          onMouseEnter={() => setIsPaused(true)}
+          onMouseLeave={() => setIsPaused(false)}
+          onTouchStart={() => setIsPaused(true)}
+          onTouchEnd={() => setIsPaused(false)}
+        >
+          <div className="flex gap-4 pb-4" style={{ width: 'max-content' }}>
+            {/* Duplicate images for infinite scroll effect */}
+            {[...allImages, ...allImages].map((item, index) => (
+              <div
+                key={index}
+                className="flex-shrink-0 w-64 h-80 sm:w-72 sm:h-96 rounded-2xl overflow-hidden shadow-lg"
+              >
+                {item.type === 'image' ? (
+                  <img
+                    src={item.src}
+                    alt=""
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <video
+                    src={item.src}
+                    className="w-full h-full object-cover"
+                    autoPlay
+                    muted
+                    loop
+                    playsInline
+                  />
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
+
+      <style jsx>{`
+        .scrollbar-hide::-webkit-scrollbar {
+          display: none;
+        }
+      `}</style>
     </div>
   );
 }
