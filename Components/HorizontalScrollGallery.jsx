@@ -28,31 +28,33 @@ const HorizontalScrollGallery = () => {
     let ctx;
 
     const setupAnimation = () => {
-      // We removed the media query check so this runs on ALL devices
       if (track && section) {
         ctx = gsap.context(() => {
           const getScrollAmount = () => {
             const trackWidth = track.scrollWidth;
             const windowWidth = window.innerWidth;
-            // Return the total scrollable distance
             return trackWidth - windowWidth;
           };
 
           const scrollAmount = getScrollAmount();
+          const isMobile = window.innerWidth < 768;
 
           gsap.to(track, {
-            x: -scrollAmount, // Move exactly the width of the overflow
+            x: -scrollAmount,
             ease: "none",
             scrollTrigger: {
               trigger: section,
               start: "top top",
-              // Adjust the 'end' value to control how fast/slow the scroll feels
-              // A larger value (e.g., scrollAmount * 1.5) makes the scroll slower/longer
-              end: () => `+=${scrollAmount}`, 
-              scrub: 1, // Increased scrub slightly for smoother feel on mobile touch
+              // MOBILE FIX: 
+              // We multiply scrollAmount by 3 on mobile. 
+              // This makes the scroll "longer", so the user has to scroll more vertically 
+              // to move the images horizontally. This prevents the "too fast/jerky" feel.
+              end: () => `+=${isMobile ? scrollAmount * 2 : scrollAmount}`, 
+              
+              scrub: 1, // Keeps the 1s smooth lag which hides micro-stutters
               pin: true,
               anticipatePin: 1,
-              invalidateOnRefresh: true, // Recalculate on resize/mobile address bar shift
+              invalidateOnRefresh: true,
             },
           });
         }, section);
@@ -76,7 +78,6 @@ const HorizontalScrollGallery = () => {
   }, []);
 
   return (
-    /* Unified Section for Mobile & Desktop */
     <section
       ref={sectionRef}
       className="relative w-full h-screen bg-white overflow-hidden"
@@ -86,17 +87,18 @@ const HorizontalScrollGallery = () => {
         <h2 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-tight text-black">
           OUR EVENTS
         </h2>
-        
       </div>
 
       {/* SCROLL TRACK */}
       <div
         ref={trackRef}
+        // ADDED: 'will-change-transform' forces GPU acceleration for smoother rendering
         className="
           absolute top-1/2 -translate-y-1/2 left-0 
           flex h-full items-center
           gap-6 px-8 
           md:gap-12 md:px-24
+          will-change-transform
         "
       >
         {images.map((src, idx) => (
@@ -104,9 +106,7 @@ const HorizontalScrollGallery = () => {
             key={idx}
             className="
               group relative 
-              /* MOBILE SIZING: 85% of screen width */
               w-[85vw] h-[55vh]
-              /* DESKTOP SIZING: Fixed width/height */
               md:w-[380px] md:h-[480px]
               rounded-2xl 
               border-2 md:border-4 border-black 

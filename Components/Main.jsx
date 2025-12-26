@@ -35,10 +35,10 @@ const Main = () => {
       }, delay);
     });
 
-    // Animate "Soul" with upward flow
+    // Animate "Soul" (Moves UP)
     setTimeout(() => {
       soulRef.current.style.opacity = '1';
-      soulRef.current.style.transform = 'translate(0, -4px)';
+      soulRef.current.style.transform = 'translate(0, -4px)'; // Move UP
       soulRef.current.style.transition = 'all 700ms cubic-bezier(0.34, 1.56, 0.64, 1)';
       
       setTimeout(() => {
@@ -47,10 +47,10 @@ const Main = () => {
       }, 100);
     }, 480);
 
-    // Animate "Mind" with downward flow
+    // Animate "Mind" (Now also Moves UP to match Soul)
     setTimeout(() => {
       mindRef.current.style.opacity = '1';
-      mindRef.current.style.transform = 'translate(0, 4px)';
+      mindRef.current.style.transform = 'translate(0, -4px)'; // CHANGED: Move UP (was 4px)
       mindRef.current.style.transition = 'all 700ms cubic-bezier(0.34, 1.56, 0.64, 1)';
       
       setTimeout(() => {
@@ -64,10 +64,11 @@ const Main = () => {
     <section id="home" className="h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-gray-100">
       <div className='w-full h-screen flex items-center justify-center relative overflow-hidden'>
         <div className='w-full px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 2xl:px-32 relative z-10'>
+          
           {/* Line 1: Communication for the Soul, */}
           <div 
             ref={line1Ref}
-            className='text-2xl xs:text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl 2xl:text-8xl font-bold text-black text-center leading-tight mb-2 sm:mb-3 md:mb-4'
+            className='text-3xl xs:text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-bold text-black text-center leading-tight mb-2 sm:mb-4'
           >
             <span className="word inline-block opacity-0" style={{ transform: 'translateX(-20px)' }}>
               Communication
@@ -81,17 +82,17 @@ const Main = () => {
               the
             </span>
             {' '}
-            <span className="relative inline-block">
+            <span className="relative inline-block whitespace-nowrap">
               <span 
                 ref={soulRef}
-                className="text-blue-500 inline-block opacity-0"
+                className="text-blue-500 inline-block opacity-0 relative z-10"
                 style={{ transform: 'translate(-20px, 0)' }}
               >
                 Soul,
               </span>
               <span 
                 ref={highlightSoulRef}
-                className="absolute bottom-1 sm:bottom-1.5 md:bottom-2 left-0 h-2 sm:h-2.5 md:h-3 lg:h-4 bg-blue-200/40 -z-10"
+                className="absolute bottom-[0.15em] left-0 h-[0.12em] bg-blue-200/60 -z-0"
                 style={{ width: '0%' }}
               />
             </span>
@@ -100,7 +101,7 @@ const Main = () => {
           {/* Line 2: Innovation for the Mind. */}
           <div 
             ref={line2Ref}
-            className='text-2xl xs:text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl 2xl:text-8xl font-bold text-black text-center leading-tight'
+            className='text-3xl xs:text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-bold text-black text-center leading-tight'
           >
             <span className="word inline-block opacity-0" style={{ transform: 'translateX(-20px)' }}>
               Innovation
@@ -114,17 +115,18 @@ const Main = () => {
               the
             </span>
             {' '}
-            <span className="relative inline-block">
+            <span className="relative inline-block whitespace-nowrap">
               <span 
                 ref={mindRef}
-                className="text-blue-500 inline-block opacity-0"
+                className="text-blue-500 inline-block opacity-0 relative z-10"
                 style={{ transform: 'translate(-20px, 0)' }}
               >
                 Mind.
               </span>
+              {/* FIXED: Exact same positioning and height as Soul */}
               <span 
                 ref={highlightMindRef}
-                className="absolute bottom-1 sm:bottom-1.5 md:bottom-2 left-0 h-2 sm:h-2.5 md:h-3 lg:h-4 bg-blue-200/40 -z-10"
+                className="absolute bottom-[0.15em] left-0 h-[0.12em] bg-blue-200/60 -z-0"
                 style={{ width: '0%' }}
               />
             </span>
