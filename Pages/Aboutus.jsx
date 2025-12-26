@@ -11,7 +11,14 @@ const scrollToContact = () => {
   if (footer) {
     footer.scrollIntoView({
       behavior: "smooth",
-      block: "end",
+      block: "start", // Changed to 'start' to ensure the top of the footer is seen
+    });
+  } else {
+    // Fallback: If no ID found, scroll to the very bottom of the page
+    console.warn("Element #contact-footer not found. Scrolling to bottom.");
+    window.scrollTo({
+      top: document.documentElement.scrollHeight,
+      behavior: "smooth",
     });
   }
 };
@@ -73,8 +80,8 @@ const Aboutus = () => {
       {/* ================= HERO ================= */}
 
       {/* MOBILE / TABLET LAYOUT (< 1024px) */}
-      <div className="flex flex-col lg:hidden min-h-screen w-full">
-        <div className="flex flex-col justify-center items-center text-center px-6 py-16 bg-gray-50 flex-grow">
+      <div className="flex flex-col lg:hidden min-h-screen w-full relative">
+        <div className="flex flex-col justify-center items-center text-center px-6 py-16 bg-gray-50 flex-grow relative z-10">
           <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-black mb-4 leading-tight">
             IEEE PCS
           </h1>
@@ -82,16 +89,19 @@ const Aboutus = () => {
             Professional Communication Society – Bridging the gap between
             technical expertise and professional expression.
           </p>
+          
+          {/* FIXED BUTTON: Added z-index, relative positioning, and cursor-pointer */}
           <button
+            type="button"
             onClick={scrollToContact}
-            className="mt-8 px-6 py-2 bg-black text-white text-sm rounded-lg hover:bg-gray-800 transition shadow-lg"
+            className="mt-8 px-6 py-2 bg-black text-white text-sm rounded-lg hover:bg-gray-800 transition shadow-lg relative z-20 cursor-pointer active:scale-95 transform duration-150"
           >
             Get Involved
           </button>
         </div>
 
         {/* SwapSection takes remaining space or own height */}
-        <div className="w-full">
+        <div className="w-full relative z-0">
           <SwapSection />
         </div>
       </div>
@@ -123,8 +133,9 @@ const Aboutus = () => {
                 Become part of a vibrant community of engineers and communicators.
               </p>
               <button
+                type="button"
                 onClick={scrollToContact}
-                className="px-8 py-3 bg-black text-white text-lg rounded-lg hover:bg-gray-800 hover:scale-105 transition transform duration-300"
+                className="px-8 py-3 bg-black text-white text-lg rounded-lg hover:bg-gray-800 hover:scale-105 transition transform duration-300 cursor-pointer"
               >
                 Get Involved
               </button>
@@ -140,7 +151,7 @@ const Aboutus = () => {
       </div>
 
       {/* ================= TIMELINE ================= */}
-      <div className="relative w-full py-20 px-4 sm:px-8 overflow-hidden   bg-white">
+      <div className="relative w-full py-20 px-4 sm:px-8 overflow-hidden bg-white">
         {/* Background Watermark */}
         <div className="absolute inset-0 opacity-[0.03] pointer-events-none flex justify-center items-center select-none">
           <span className="text-[20vw] font-extrabold text-black whitespace-nowrap">
@@ -160,7 +171,7 @@ const Aboutus = () => {
       </div>
 
       {/* ================= RETHINKING ================= */}
-      <div className="w-full mt-5 ">
+      <div className="w-full mt-5">
         <RethinkingSection />
       </div>
 

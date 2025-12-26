@@ -38,7 +38,7 @@ const Main = () => {
     // Animate "Soul" (Moves UP)
     setTimeout(() => {
       soulRef.current.style.opacity = '1';
-      soulRef.current.style.transform = 'translate(0, -4px)'; // Move UP
+      soulRef.current.style.transform = 'translate(0, -4px)';
       soulRef.current.style.transition = 'all 700ms cubic-bezier(0.34, 1.56, 0.64, 1)';
       
       setTimeout(() => {
@@ -47,10 +47,10 @@ const Main = () => {
       }, 100);
     }, 480);
 
-    // Animate "Mind" (Now also Moves UP to match Soul)
+    // Animate "Mind" (Moves UP)
     setTimeout(() => {
       mindRef.current.style.opacity = '1';
-      mindRef.current.style.transform = 'translate(0, -4px)'; // CHANGED: Move UP (was 4px)
+      mindRef.current.style.transform = 'translate(0, -4px)';
       mindRef.current.style.transition = 'all 700ms cubic-bezier(0.34, 1.56, 0.64, 1)';
       
       setTimeout(() => {
@@ -63,12 +63,15 @@ const Main = () => {
   return (
     <section id="home" className="h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-gray-100">
       <div className='w-full h-screen flex items-center justify-center relative overflow-hidden'>
-        <div className='w-full px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 2xl:px-32 relative z-10'>
+        {/* Added extra padding control for mobile */}
+        <div className='w-full px-2 sm:px-6 md:px-8 lg:px-12 xl:px-16 2xl:px-32 relative z-10'>
           
           {/* Line 1: Communication for the Soul, */}
           <div 
             ref={line1Ref}
-            className='text-3xl xs:text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-bold text-black text-center leading-tight mb-2 sm:mb-4'
+            // CHANGED: text-[5.5vw] ensures it fits on one line on mobile. 
+            // xs:text-2xl handles slightly larger phones, and sm:text-5xl restores desktop size.
+            className='text-[5.5vw] xs:text-2xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-bold text-black text-center leading-tight mb-2 sm:mb-4 tracking-tight'
           >
             <span className="word inline-block opacity-0" style={{ transform: 'translateX(-20px)' }}>
               Communication
@@ -101,7 +104,8 @@ const Main = () => {
           {/* Line 2: Innovation for the Mind. */}
           <div 
             ref={line2Ref}
-            className='text-3xl xs:text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-bold text-black text-center leading-tight'
+            // CHANGED: Matching responsive classes for the second line
+            className='text-[5.5vw] xs:text-2xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-bold text-black text-center leading-tight tracking-tight'
           >
             <span className="word inline-block opacity-0" style={{ transform: 'translateX(-20px)' }}>
               Innovation
@@ -123,7 +127,6 @@ const Main = () => {
               >
                 Mind.
               </span>
-              {/* FIXED: Exact same positioning and height as Soul */}
               <span 
                 ref={highlightMindRef}
                 className="absolute bottom-[0.15em] left-0 h-[0.12em] bg-blue-200/60 -z-0"
