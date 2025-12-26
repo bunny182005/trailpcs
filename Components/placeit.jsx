@@ -24,12 +24,7 @@ const Placeit = () => {
         />
 
         <p className="text-xl mb-8">"Place-It" is a premier event that bridges the gap between students and leading figures in the EdTech industry. It's centered around insightful discussions and features a dynamic Ideathon, challenging participants to bring innovative educational ideas to life. This event provides a vital opportunity for attendees to learn from experts, connect with pioneers, and play an active role in shaping the future of education technology.</p>
-        <button
-          onClick={handleBack}
-          className="px-8 py-3 bg-gray-800 text-white rounded-full text-lg font-medium hover:bg-gray-700 transition-colors"
-        >
-          Back to Events
-        </button>
+       
       </div>
     </div>
   );

@@ -1,91 +1,218 @@
-import React, { useState } from 'react';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
-import StaggeredMenu from './StaggeredMenu'; // Adjust path as needed
+import React, { useState, useEffect } from 'react';
+import StaggeredMenu from './StaggeredMenu';
 
 export default function Nav() {
   const [hoveredItem, setHoveredItem] = useState(null);
-  const navigate = useNavigate();
-  const location = useLocation();
+  const [activeSection, setActiveSection] = useState('home');
+  const [menuKey, setMenuKey] = useState(0);
+
+ const scrollTo = (id) => {
+  // MEMORY → CENTER ALIGN
+  if (id === 'memories') {
+    const el = document.querySelector('[data-memories-center]');
+    if (!el) return;
+
+    const rect = el.getBoundingClientRect();
+    const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+
+    const elementCenter = rect.top + scrollTop + rect.height / 2;
+    const viewportCenter = window.innerHeight / 2;
+
+    window.scrollTo({
+      top: elementCenter - viewportCenter,
+      behavior: 'smooth',
+    });
+
+    return;
+  }
+
+  // CONTACT → FOOTER
+  if (id === 'contact') {
+    const footer = document.getElementById('contact-footer');
+    if (footer) {
+      footer.scrollIntoView({ behavior: 'smooth', block: 'end' });
+    }
+    return;
+  }
+
+  // DEFAULT
+  const el = document.getElementById(id);
+  if (el) {
+    el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+};
+
+
 
   const navItems = [
-    { id: 'about', label: 'ABOUT', path: '/about' },
-    { id: 'team', label: 'TEAM', path: '/team' },
-    { id: 'events', label: 'EVENTS', path: '/events' },
-    { id: 'contact', label: 'CONTACT', path: '/contact' },
+    { id: 'about', label: 'ABOUT' },
+    { id: 'team', label: 'TEAM' },
+    { id: 'events', label: 'EVENTS' },
+    { id: 'memories', label: 'MEMORIES' },
+    { id: 'contact', label: 'CONTACT' },
   ];
 
-  // Menu items for StaggeredMenu component
+  /* ---------------------------------------------
+     SCROLL SPY (auto-activate on scroll)
+  --------------------------------------------- */
+  useEffect(() => {
+    const sections = navItems
+      .map(item => document.getElementById(item.id))
+      .filter(Boolean);
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        // Find the section with highest intersection ratio
+        const visibleSections = entries
+          .filter(entry => entry.isIntersecting)
+          .sort((a, b) => b.intersectionRatio - a.intersectionRatio);
+
+        if (visibleSections.length > 0) {
+          setActiveSection(visibleSections[0].target.id);
+        }
+      },
+      {
+        threshold: [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0],
+        rootMargin: '-20% 0px -20% 0px', // Focus on middle of viewport
+      }
+    );
+
+    sections.forEach(section => observer.observe(section));
+
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+  const handleMobileNav = (e) => {
+    const { id } = e.detail || {};
+    if (!id) return;
+
+    // Close staggered menu
+    setMenuKey(prev => prev + 1);
+    setActiveSection(id);
+
+    // Wait for menu close animation
+    setTimeout(() => {
+      scrollTo(id);
+    }, 400);
+  };
+
+  window.addEventListener('nav-item-click', handleMobileNav);
+
+  return () => {
+    window.removeEventListener('nav-item-click', handleMobileNav);
+  };
+}, []);
+
+
+  /* ---------------------------------------------
+     MOBILE MENU ITEM CLICK HANDLER
+  --------------------------------------------- */
+  useEffect(() => {
+    const handleMenuItemClick = (e) => {
+      const target = e.target.closest('.sm-panel-item');
+
+      if (target) {
+        const href = target.getAttribute('href');
+
+        if (href && href.startsWith('#')) {
+          e.preventDefault();
+          e.stopPropagation();
+
+          const id = href.substring(1);
+
+          setActiveSection(id);
+          setMenuKey(prev => prev + 1);
+
+          setTimeout(() => {
+            scrollTo(id);
+          }, 400);
+        }
+      }
+    };
+
+    document.addEventListener('click', handleMenuItemClick, true);
+
+    return () => {
+      document.removeEventListener('click', handleMenuItemClick, true);
+    };
+  }, []);
+
   const menuItems = navItems.map(item => ({
     label: item.label,
-    ariaLabel: `Go to ${item.label.toLowerCase()} page`,
-    link: item.path
+    ariaLabel: `Go to ${item.label}`,
+    link: `#${item.id}`,
   }));
 
-  // Add social items if you have any
   const socialItems = [
     { label: 'Instagram', link: 'https://instagram.com/yourhandle' },
     { label: 'LinkedIn', link: 'https://linkedin.com/company/yourcompany' },
-    { label: 'Twitter', link: 'https://twitter.com/yourhandle' }
+    { label: 'Twitter', link: 'https://twitter.com/yourhandle' },
   ];
-
-  const handleLogoClick = () => {
-    navigate('/');
-  };
 
   return (
     <>
-      {/* Desktop Navigation - Hidden on mobile/tablet */}
+      {/* ================= DESKTOP NAV ================= */}
       <nav className="hidden lg:block fixed top-0 left-0 right-0 z-50 bg-transparent">
         <div className="max-w-screen-2xl mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
-            {/* Logo - Clickable to go home */}
-            <div 
+
+            {/* LOGO */}
+            <div
+              onClick={() => {
+                setActiveSection('home');
+                scrollTo('home');
+              }}
               className="cursor-pointer hover:opacity-80 transition-opacity"
-              onClick={handleLogoClick}
             >
-              <img 
-                src="/logo.png" 
-                alt="IEEEPCS Logo" 
-                className="w-40 h-auto" 
-              />
+              <img src="/logo.png" alt="logo" className="w-40 h-auto" />
             </div>
 
-            {/* Navigation Items */}
+            {/* NAV ITEMS */}
             <div className="flex items-center gap-12">
-              {navItems.map((item) => {
-                const isActive = location.pathname === item.path;
+              {navItems.map(item => {
                 const isHovered = hoveredItem === item.id;
+                const isActive = activeSection === item.id;
 
                 return (
-                  <Link
+                  <button
                     key={item.id}
-                    to={item.path}
-                    className="relative flex items-center gap-3 group"
+                    onClick={() => {
+                      setActiveSection(item.id);
+                      scrollTo(item.id);
+                    }}
                     onMouseEnter={() => setHoveredItem(item.id)}
                     onMouseLeave={() => setHoveredItem(null)}
+                    className="relative flex items-center gap-3 group"
                   >
-                    {/* Circle indicator */}
+                    {/* BLACK DOT - Only shows when active (not hovered) */}
                     <div
-                      className={`w-3 h-3 rounded-full border transition-all duration-300 ${
-                        (isActive || isHovered)
-                          ? 'border-black scale-100 opacity-100'
-                          : 'border-gray-300 scale-0 opacity-0'
-                      } ${
-                        isActive 
-                          ? 'bg-black'
-                          : 'bg-transparent'
+                      className={`w-3 h-3 rounded-full bg-black transition-all duration-300 ${
+                        isActive && !isHovered
+                          ? 'scale-100 opacity-100'
+                          : 'scale-0 opacity-0'
                       }`}
                     />
 
-                    {/* Text */}
-                    <span className={`text-sm font-medium tracking-wide transition-colors duration-300 ${
-                        isActive ? 'text-black' : 'text-gray-800 hover:text-black'
+                    {/* WHITE DOT - Only shows on hover */}
+                    <div
+                      className={`w-3 h-3 rounded-full border-2 border-white bg-transparent transition-all duration-300 absolute left-0 ${
+                        isHovered
+                          ? 'scale-100 opacity-100'
+                          : 'scale-0 opacity-0'
+                      }`}
+                    />
+
+                    {/* TEXT */}
+                    <span
+                      className={`text-sm font-medium tracking-wide transition-colors duration-300 ${
+                        isActive ? 'text-black' : 'text-gray-800'
                       }`}
                     >
                       {item.label}
                     </span>
 
-                    {/* Arrow icon */}
+                    {/* ARROW - Only shows on hover */}
                     <div
                       className={`transition-all duration-300 ${
                         isHovered
@@ -109,7 +236,7 @@ export default function Nav() {
                         </svg>
                       </div>
                     </div>
-                  </Link>
+                  </button>
                 );
               })}
             </div>
@@ -117,23 +244,27 @@ export default function Nav() {
         </div>
       </nav>
 
-      {/* Mobile/Tablet Navigation with Hamburger Menu - Visible on smaller screens */}
+      {/* ================= MOBILE NAV ================= */}
       <div className="lg:hidden">
         <StaggeredMenu
+          key={menuKey}
           position="right"
           items={menuItems}
           socialItems={socialItems}
-          displaySocials={true}
-          displayItemNumbering={true}
+          displaySocials
+          displayItemNumbering
           menuButtonColor="#000"
           openMenuButtonColor="#000"
-          changeMenuColorOnOpen={true}
+          changeMenuColorOnOpen
           colors={['#f3f4f6', '#e5e7eb']}
           logoUrl="/logo.png"
-          accentColor="#000000"
-          isFixed={true}
-          onMenuOpen={() => console.log('Menu opened')}
-          onMenuClose={() => console.log('Menu closed')}
+          accentColor="#000"
+          isFixed
+          onLogoClick={() => {
+            setActiveSection('home');
+            setMenuKey(prev => prev + 1);
+            setTimeout(() => scrollTo('home'), 400);
+          }}
         />
       </div>
     </>

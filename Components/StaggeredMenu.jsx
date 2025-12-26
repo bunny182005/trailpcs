@@ -346,16 +346,23 @@ export const StaggeredMenu = ({
           className="staggered-menu-header absolute top-0 left-0 w-full flex items-center justify-between p-[2em] bg-transparent pointer-events-none z-20"
           aria-label="Main navigation header"
         >
-          <div className="sm-logo flex items-center select-none pointer-events-auto" aria-label="Logo">
-            <img
-              src={logoUrl || '/src/assets/logos/reactbits-gh-white.svg'}
-              alt="Logo"
-              className="sm-logo-img block h-8 w-auto object-contain"
-              draggable={false}
-              width={110}
-              height={24}
-            />
-          </div>
+          <div
+  className="sm-logo flex items-center select-none pointer-events-auto cursor-pointer"
+  aria-label="Logo"
+  onClick={() => {
+    onLogoClick?.();
+  }}
+>
+  <img
+    src={logoUrl || '/src/assets/logos/reactbits-gh-white.svg'}
+    alt="Logo"
+    className="sm-logo-img block h-8 w-auto object-contain"
+    draggable={false}
+    width={110}
+    height={24}
+  />
+</div>
+
 
           <button
             ref={toggleBtnRef}
@@ -414,10 +421,20 @@ export const StaggeredMenu = ({
                 items.map((it, idx) => (
                   <li className="sm-panel-itemWrap relative overflow-hidden leading-none" key={it.label + idx}>
                     <a
-                      className="sm-panel-item relative text-black font-semibold text-[4rem] cursor-pointer leading-none tracking-[-2px] uppercase transition-[background,color] duration-150 ease-linear inline-block no-underline pr-[1.4em]"
-                      href={it.link}
-                      aria-label={it.ariaLabel}
-                      data-index={idx + 1}
+                     className="sm-panel-item relative text-black font-semibold text-[4rem] cursor-pointer leading-none tracking-[-2px] uppercase transition-[background,color] duration-150 ease-linear inline-block no-underline pr-[1.4em]"
+  href={it.link}
+  aria-label={it.ariaLabel}
+  data-index={idx + 1}
+  onClick={(e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (it.link && it.link.startsWith('#')) {
+      const event = new CustomEvent('nav-item-click', {
+        detail: { id: it.link.substring(1) }
+      });
+      window.dispatchEvent(event);
+    }
+  }}
                     >
                       <span className="sm-panel-itemLabel inline-block [transform-origin:50%_100%] will-change-transform">
                         {it.label}

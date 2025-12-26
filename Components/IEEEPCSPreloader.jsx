@@ -2,11 +2,32 @@ import React, { useState, useEffect } from 'react';
 
 export default function IEEEPCSPreloader({ onComplete }) {
   const [progress, setProgress] = useState(0);
-  const [isExiting, setIsExiting] = useState(false); 
+  const [isExiting, setIsExiting] = useState(false);
+  const [shouldShow, setShouldShow] = useState(false);
 
   const EXIT_ANIMATION_DURATION = 1000;
 
+  // Check if this is a page refresh or initial load
   useEffect(() => {
+    // Use a flag that expires immediately after the first render
+    const hasRenderedThisSession = window.sessionStorage.getItem('has-rendered');
+    const isPageLoad = !window.performance || performance.navigation.type === 1 || !hasRenderedThisSession;
+    
+    if (isPageLoad || !hasRenderedThisSession) {
+      setShouldShow(true);
+      // Set flag for this session (will persist during navigation but not refresh)
+      window.sessionStorage.setItem('has-rendered', 'true');
+    } else {
+      // Skip preloader
+      if (onComplete) {
+        onComplete();
+      }
+    }
+  }, [onComplete]);
+
+  useEffect(() => {
+    if (!shouldShow) return;
+
     const interval = setInterval(() => {
       setProgress((prev) => {
         if (prev >= 100) {
@@ -19,20 +40,24 @@ export default function IEEEPCSPreloader({ onComplete }) {
     }, 50);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [shouldShow]);
 
   useEffect(() => {
-    if (isExiting) {
+    if (isExiting && shouldShow) {
       const timer = setTimeout(() => {
         if (onComplete) {
-          onComplete(); // Tell parent we're done
+          onComplete();
         }
       }, EXIT_ANIMATION_DURATION);
       return () => clearTimeout(timer);
     }
-  }, [isExiting, onComplete]);
+  }, [isExiting, onComplete, shouldShow]);
 
-  // PRELOADER
+  // Don't render anything if preloader shouldn't show
+  if (!shouldShow) {
+    return null;
+  }
+
   return (
     <div 
       className={`
@@ -78,7 +103,6 @@ export default function IEEEPCSPreloader({ onComplete }) {
                 left: 0, 
                 right: 0, 
                 fontSize: '20vw', 
-                // UPDATED: Changed the gradient back to white
                 backgroundImage: 'linear-gradient(90deg, #fff 40%, #ffffffaa 50%, #fff 60%)', 
                 backgroundSize: '200% auto', 
                 color: 'transparent', 
@@ -98,4 +122,3 @@ export default function IEEEPCSPreloader({ onComplete }) {
     </div>
   );
 }
-

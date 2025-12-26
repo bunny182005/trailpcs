@@ -1,4 +1,28 @@
 /* src/index.css */
+html {
+  scroll-behavior: smooth;
+}
+section {
+  scroll-margin-top: 100px; /* navbar height */
+}
+
+
+@keyframes borderGlow {
+  0% {
+    box-shadow: 0 0 0px rgba(0,0,0,0.05);
+  }
+  50% {
+    box-shadow: 0 0 24px rgba(0,0,0,0.12);
+  }
+  100% {
+    box-shadow: 0 0 0px rgba(0,0,0,0.05);
+  }
+}
+
+.animate-borderGlow {
+  animation: borderGlow 6s ease-in-out infinite;
+}
+
 
 /* 1. Define your custom font */
 @font-face {

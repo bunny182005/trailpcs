@@ -1,473 +1,290 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect, useRef } from "react";
+import HorizontalScrollGallery from "../Components/HorizontalScrollGallery";
+// import MosaicTextHeader from "../Components/MosaicTextHeader.jsx"; 
 
-const Events = () => {
-  const [scrollY, setScrollY] = useState(0);
-  const [currentSlide, setCurrentSlide] = useState(0);
-  const containerRef = useRef(null);
-  const flagshipRef = useRef(null);
-  const navigate = useNavigate();
+/* ------------------ IMAGE SETS ------------------ */
+const SOTY_IMAGES = [
+  "/2025/c.png",
+  "/2025/cs.png",
+  "/2025/dh.png",
+  "/2025/s.png",
+];
 
-  // Check if we're returning from a detail page
-  useEffect(() => {
-    const isReturningFromDetail = sessionStorage.getItem('returningFromEventDetail');
-    if (isReturningFromDetail) {
-      sessionStorage.removeItem('returningFromEventDetail');
-      setTimeout(() => {
-        if (flagshipRef.current) {
-          window.scrollTo({
-            top: flagshipRef.current.offsetTop,
-            behavior: 'instant'
-          });
-        }
-      }, 0);
-    }
-  }, []);
+const PLACEIT_IMAGES = [
+  "/2025/c.png",
+  "/2025/cs.png",
+  "/2025/dh.png",
+  "/2025/s.png",
+];
+
+/* ------------------ CROSSFADE PANEL ------------------ */
+const CrossfadePanel = ({ images, direction = "up" }) => {
+  const [index, setIndex] = useState(0);
 
   useEffect(() => {
-    const handleScroll = () => {
-      if (containerRef.current) {
-        const rect = containerRef.current.getBoundingClientRect();
-        const scrollProgress = Math.max(0, Math.min(1, (window.innerHeight - rect.top) / (window.innerHeight + rect.height)));
-        setScrollY(scrollProgress);
-      }
-    };
-
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    handleScroll();
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
-  const handleKnowMore = (page) => {
-    sessionStorage.setItem('returningFromEventDetail', 'true');
-    navigate(`/events/${page}`);
-  };
-
-  const leftColumnAwards = [
-    { id: 1, title: 'Site of the Day', imgSrc: '/images/event1.jpg', date: 'Mar 04, 2020' },
-    { id: 2, title: 'Developer Award', imgSrc: '/images/event2.jpg', date: 'Feb 25, 2022' },
-    { id: 3, title: 'Best Design', imgSrc: '/images/event3.jpg', date: 'Jun 12, 2021' },
-    { id: 4, title: 'Innovation Award', imgSrc: '/images/event4.jpg', date: 'Aug 20, 2022' },
-    { id: 5, title: 'Digital Award', imgSrc: '/images/event5.jpg', date: 'Dec 10, 2021' },
-  ];
-
-  const centerColumnAwards = [
-    { id: 6, title: 'FWA of the Day', imgSrc: '/images/event6.jpg', date: 'Dec 06' },
-    { id: 7, title: 'Mobile Excellence', imgSrc: '/images/event7.jpg', date: 'Feb 25, 2020' },
-    { id: 8, title: 'UX Excellence', imgSrc: '/images/event8.jpg', date: 'Mar 15, 2021' },
-    { id: 9, title: 'Creative Award', imgSrc: '/images/event9.jpg', date: 'Sep 10, 2022' },
-    { id: 10, title: 'Web Excellence', imgSrc: '/images/event10.jpg', date: 'Jan 05, 2022' },
-  ];
-
-  const rightColumnAwards = [
-    { id: 11, title: 'Website of the Day', imgSrc: '/images/event11.jpg', date: 'Feb 25, 2022' },
-    { id: 12, title: 'Best Innovation', imgSrc: '/images/event12.jpg', date: 'Jan 15, 2023' },
-    { id: 13, title: 'Digital Excellence', imgSrc: '/images/event13.jpg', date: 'Apr 08, 2021' },
-    { id: 14, title: 'Web Award', imgSrc: '/images/event14.jpg', date: 'Nov 30, 2022' },
-    { id: 15, title: 'Design Award', imgSrc: '/images/event15.jpg', date: 'May 18, 2021' },
-  ];
-
-  // Combine all awards for mobile carousel
-  const allAwards = [...leftColumnAwards, ...centerColumnAwards, ...rightColumnAwards];
-
-  const flagshipEvents = [
-    {
-      id: 1,
-      title: 'Placeit',
-      imgSrc: '/images/placeit-poster.jpg',
-      description: 'Our premier design and innovation event',
-      page: 'placeit'
-    },
-    {
-      id: 2,
-      title: 'SOTY',
-      imgSrc: '/images/soty-poster.jpg',
-      description: 'Site of the Year celebration',
-      page: 'soty'
-    }
-  ];
-
-  const nextSlide = () => {
-    setCurrentSlide((prev) => (prev + 1) % allAwards.length);
-  };
-
-  const prevSlide = () => {
-    setCurrentSlide((prev) => (prev - 1 + allAwards.length) % allAwards.length);
-  };
-
-  const getTextStyle = () => {
-    const textFadeIn = 0.05;
-    const textFadeOut = 0.2;
-    
-    if (scrollY < textFadeIn) {
-      return { opacity: scrollY / textFadeIn, transform: 'scale(0.9)', pointerEvents: 'auto' };
-    }
-    if (scrollY > textFadeOut) {
-      const fadeProgress = (scrollY - textFadeOut) / 0.1;
-      return { 
-        opacity: Math.max(0, 1 - fadeProgress), 
-        transform: `scale(${1 - fadeProgress * 0.1})`, 
-        pointerEvents: 'none' 
-      };
-    }
-    return { opacity: 1, transform: 'scale(1)', pointerEvents: 'auto' };
-  };
-
-  const getPosterStyle = (index, column) => {
-    const animStart = 0.3;
-    
-    if (scrollY < animStart) {
-      if (column === 'center') {
-        return { opacity: 0, transform: 'translateY(50vh)', pointerEvents: 'none' };
-      }
-      return { opacity: 0, transform: 'translateY(-50vh)', pointerEvents: 'none' };
-    }
-    
-    const adjustedProgress = (scrollY - animStart) / (1 - animStart);
-    const phase1End = 0.45;
-    const phase2End = 0.70;
-    const phase3End = 0.95;
-    
-    if (index < 3) {
-      const posterDuration = phase1End / 3;
-      const posterStart = index * posterDuration;
-      const posterEnd = (index + 1) * posterDuration;
-      
-      if (adjustedProgress < posterStart) {
-        if (column === 'center') {
-          return { opacity: 0, transform: 'translateY(100vh)', pointerEvents: 'none' };
-        }
-        return { opacity: 0, transform: 'translateY(-100vh)', pointerEvents: 'none' };
-      }
-      
-      if (adjustedProgress < posterEnd) {
-        const localProgress = (adjustedProgress - posterStart) / posterDuration;
-        
-        if (column === 'center') {
-          const translateY = 50 - (localProgress * 100);
-          return { opacity: 1, transform: `translateY(${translateY}vh)`, pointerEvents: 'auto' };
-        } else {
-          const translateY = -50 + (localProgress * 100);
-          return { opacity: 1, transform: `translateY(${translateY}vh)`, pointerEvents: 'auto' };
-        }
-      }
-      
-      const exitProgress = (adjustedProgress - posterEnd) / 0.1;
-      const easedExit = Math.min(1, exitProgress);
-      
-      if (column === 'left') {
-        return { opacity: 1, transform: `translate(-${easedExit * 100}vw, 50vh)`, pointerEvents: 'none' };
-      } else if (column === 'center') {
-        return { opacity: 1, transform: `translateY(-${50 + easedExit * 100}vh)`, pointerEvents: 'none' };
-      } else if (column === 'right') {
-        return { opacity: 1, transform: `translate(${easedExit * 100}vw, 50vh)`, pointerEvents: 'none' };
-      }
-    }
-    
-    if (index >= 3) {
-      if (adjustedProgress < phase2End) {
-        const alignStart = phase1End;
-        const alignDuration = phase2End - phase1End;
-        
-        if (adjustedProgress < alignStart) {
-          if (column === 'center') {
-            return { opacity: 0, transform: 'translateY(50vh)', pointerEvents: 'none' };
-          }
-          return { opacity: 0, transform: 'translateY(-50vh)', pointerEvents: 'none' };
-        }
-        
-        const poster3Duration = alignDuration * 0.6;
-        const poster4Start = alignStart + poster3Duration;
-        const poster4Duration = alignDuration * 0.4;
-        
-        if (index === 3) {
-          const poster3Progress = (adjustedProgress - alignStart) / poster3Duration;
-          const easedProgress = 1 - Math.pow(1 - Math.min(1, poster3Progress), 3);
-          const spacing = 25;
-          const targetY = -spacing;
-          
-          if (column === 'center') {
-            const startY = 50;
-            const translateY = startY - (startY - targetY) * easedProgress;
-            return { opacity: easedProgress, transform: `translateY(${translateY}vh)`, pointerEvents: easedProgress > 0.5 ? 'auto' : 'none' };
-          } else {
-            const startY = -50;
-            const translateY = startY - (startY - targetY) * easedProgress;
-            return { opacity: easedProgress, transform: `translateY(${translateY}vh)`, pointerEvents: easedProgress > 0.5 ? 'auto' : 'none' };
-          }
-        }
-        
-        if (index === 4) {
-          if (adjustedProgress < poster4Start) {
-            if (column === 'center') {
-              return { opacity: 0, transform: 'translateY(50vh)', pointerEvents: 'none' };
-            }
-            return { opacity: 0, transform: 'translateY(-50vh)', pointerEvents: 'none' };
-          }
-          
-          const poster4Progress = (adjustedProgress - poster4Start) / poster4Duration;
-          const easedProgress = 1 - Math.pow(1 - Math.min(1, poster4Progress), 3);
-          const spacing = 25;
-          const targetY = spacing;
-          
-          if (column === 'center') {
-            const startY = 50;
-            const translateY = startY - (startY - targetY) * easedProgress;
-            return { opacity: easedProgress, transform: `translateY(${translateY}vh)`, pointerEvents: easedProgress > 0.5 ? 'auto' : 'none' };
-          } else {
-            const startY = -50;
-            const translateY = startY - (startY - targetY) * easedProgress;
-            return { opacity: easedProgress, transform: `translateY(${translateY}vh)`, pointerEvents: easedProgress > 0.5 ? 'auto' : 'none' };
-          }
-        }
-      }
-      
-      if (adjustedProgress < phase3End) {
-        const fadeStart = phase2End;
-        const fadeDuration = phase3End - phase2End;
-        const poster3FadeDuration = fadeDuration * 0.5;
-        const poster4FadeStart = fadeStart + poster3FadeDuration * 0.3;
-        const poster4FadeDuration = fadeDuration * 0.7;
-        
-        if (index === 3) {
-          const fadeProgress = (adjustedProgress - fadeStart) / poster3FadeDuration;
-          const easedFade = Math.min(1, fadeProgress);
-          const spacing = 25;
-          const initialY = -spacing;
-          
-          if (column === 'left') {
-            return { opacity: Math.max(0, 1 - easedFade), transform: `translate(-${easedFade * 100}vw, ${initialY}vh)`, pointerEvents: 'none' };
-          } else if (column === 'center') {
-            return { opacity: Math.max(0, 1 - easedFade), transform: `translateY(${initialY - easedFade * 100}vh)`, pointerEvents: 'none' };
-          } else if (column === 'right') {
-            return { opacity: Math.max(0, 1 - easedFade), transform: `translate(${easedFade * 100}vw, ${initialY}vh)`, pointerEvents: 'none' };
-          }
-        }
-        
-        if (index === 4) {
-          if (adjustedProgress < poster4FadeStart) {
-            const spacing = 25;
-            const initialY = spacing;
-            return { opacity: 1, transform: `translateY(${initialY}vh)`, pointerEvents: 'auto' };
-          }
-          
-          const fadeProgress = (adjustedProgress - poster4FadeStart) / poster4FadeDuration;
-          const easedFade = Math.min(1, fadeProgress);
-          const spacing = 25;
-          const initialY = spacing;
-          
-          if (column === 'left') {
-            return { opacity: Math.max(0, 1 - easedFade), transform: `translate(-${easedFade * 100}vw, ${initialY}vh)`, pointerEvents: 'none' };
-          } else if (column === 'center') {
-            return { opacity: Math.max(0, 1 - easedFade), transform: `translateY(${initialY + easedFade * 100}vh)`, pointerEvents: 'none' };
-          } else if (column === 'right') {
-            return { opacity: Math.max(0, 1 - easedFade), transform: `translate(${easedFade * 100}vw, ${initialY}vh)`, pointerEvents: 'none' };
-          }
-        }
-      }
-      return { opacity: 0, pointerEvents: 'none', display: 'none' };
-    }
-    return { opacity: 0, pointerEvents: 'none', display: 'none' };
-  };
+    const interval = setInterval(() => {
+      setIndex((i) => (i + 1) % images.length);
+    }, 3000);
+    return () => clearInterval(interval);
+  }, [images]);
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Scroll Animation Section - Hidden on mobile */}
-      <div ref={containerRef} className="hidden lg:block relative min-h-[600vh] bg-gray-50">
-        <div className="sticky top-0 h-screen flex items-center justify-center overflow-hidden">
-          <div
-            className="absolute inset-0 flex items-center justify-center z-20 transition-all duration-700"
-            style={getTextStyle()}
-          >
-            <div className="max-w-4xl mx-auto px-8 text-center">
-              <button className="px-6 py-3 bg-gray-800 text-white rounded-full text-sm font-medium mb-12">
-                Events
-              </button>
-              <h2 className="text-5xl md:text-6xl font-light leading-tight">
-                To truly stand out, you have to break away from the ordinary.
-              </h2>
-            </div>
-          </div>
-
-          <div className="absolute inset-0 flex gap-24 items-center justify-center px-16">
-            <div className="relative w-80 h-96">
-              {leftColumnAwards.map((award, index) => (
-                <div
-                  key={award.id}
-                  className="absolute inset-0 transition-all duration-700 ease-out will-change-transform"
-                  style={getPosterStyle(index, 'left')}
-                >
-                  <div className="relative rounded-lg shadow-xl h-full overflow-hidden">
-                    <img src={award.imgSrc} alt={award.title} className="w-full h-full object-cover" />
-                    <div className="absolute inset-0 bg-black bg-opacity-30"></div>
-                    <div className="absolute inset-0 p-6 flex flex-col justify-between text-white">
-                      <div>
-                        <div className="text-xs font-medium mb-2">W.</div>
-                        <h3 className="text-xl font-bold mb-2">{award.title}</h3>
-                        <p className="text-sm mb-1">{award.date}</p>
-                        <p className="text-xs opacity-90">Neondoor.</p>
-                      </div>
-                      <div className="text-xs opacity-75">By Cappen</div>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            <div className="relative w-80 h-96">
-              {centerColumnAwards.map((award, index) => (
-                <div
-                  key={award.id}
-                  className="absolute inset-0 transition-all duration-700 ease-out will-change-transform"
-                  style={getPosterStyle(index, 'center')}
-                >
-                  <div className="relative rounded-lg shadow-xl h-full overflow-hidden">
-                    <img src={award.imgSrc} alt={award.title} className="w-full h-full object-cover" />
-                    <div className="absolute inset-0 bg-black bg-opacity-30"></div>
-                    <div className="absolute inset-0 p-6 flex flex-col justify-between text-white">
-                      <div>
-                        <div className="text-xs font-medium mb-2">W.</div>
-                        <h3 className="text-xl font-bold mb-2">{award.title}</h3>
-                        <p className="text-sm mb-1">{award.date}</p>
-                        <p className="text-xs opacity-90">Neondoor.</p>
-                      </div>
-                      <div className="text-xs opacity-75">By Cappen</div>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            <div className="relative w-80 h-96">
-              {rightColumnAwards.map((award, index) => (
-                <div
-                  key={award.id}
-                  className="absolute inset-0 transition-all duration-700 ease-out will-change-transform"
-                  style={getPosterStyle(index, 'right')}
-                >
-                  <div className="relative rounded-lg shadow-xl h-full overflow-hidden">
-                    <img src={award.imgSrc} alt={award.title} className="w-full h-full object-cover" />
-                    <div className="absolute inset-0 bg-black bg-opacity-30"></div>
-                    <div className="absolute inset-0 p-6 flex flex-col justify-between text-white">
-                      <div>
-                        <div className="text-xs font-medium mb-2">W.</div>
-                        <h3 className="text-xl font-bold mb-2">{award.title}</h3>
-                        <p className="text-sm mb-1">{award.date}</p>
-                        <p className="text-xs opacity-90">Neondoor.</p>
-                      </div>
-                      <div className="text-xs opacity-75">By Cappen</div>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Mobile Carousel Section - Visible only on mobile */}
-      <div className="lg:hidden min-h-screen flex flex-col justify-center bg-gray-50 px-4 py-12">
-        <div className="max-w-2xl mx-auto text-center mb-8">
-          <button className="px-4 sm:px-6 py-2 sm:py-3 bg-gray-800 text-white rounded-full text-xs sm:text-sm font-medium mb-6 sm:mb-8">
-            Events
-          </button>
-          <h2 className="text-xl sm:text-2xl md:text-3xl font-light leading-tight mb-8">
-            To truly stand out, you have to break away from the ordinary.
-          </h2>
-        </div>
-
-        {/* Carousel */}
-        <div className="relative max-w-md mx-auto w-full">
-          <div className="relative w-full aspect-[4/5] rounded-lg shadow-xl overflow-hidden">
-            <img
-              src={allAwards[currentSlide].imgSrc}
-              alt={allAwards[currentSlide].title}
-              className="w-full h-full object-cover transition-opacity duration-300"
-            />
-            <div className="absolute inset-0 bg-black bg-opacity-30"></div>
-            <div className="absolute inset-0 p-4 sm:p-6 flex flex-col justify-between text-white">
-              <div>
-                <div className="text-xs font-medium mb-2">W.</div>
-                <h3 className="text-lg sm:text-xl font-bold mb-2">{allAwards[currentSlide].title}</h3>
-                <p className="text-sm mb-1">{allAwards[currentSlide].date}</p>
-                <p className="text-xs opacity-90">Neondoor.</p>
-              </div>
-              <div className="text-xs opacity-75">By Cappen</div>
-            </div>
-          </div>
-
-          {/* Navigation Buttons */}
-          <button
-            onClick={prevSlide}
-            className="absolute left-2 top-1/2 -translate-y-1/2 bg-white bg-opacity-80 hover:bg-opacity-100 rounded-full p-2 shadow-lg transition-all z-10"
-            aria-label="Previous slide"
-          >
-            <svg className="w-5 h-5 sm:w-6 sm:h-6 text-gray-800" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-            </svg>
-          </button>
-          <button
-            onClick={nextSlide}
-            className="absolute right-2 top-1/2 -translate-y-1/2 bg-white bg-opacity-80 hover:bg-opacity-100 rounded-full p-2 shadow-lg transition-all z-10"
-            aria-label="Next slide"
-          >
-            <svg className="w-5 h-5 sm:w-6 sm:h-6 text-gray-800" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-            </svg>
-          </button>
-
-          {/* Indicators */}
-          <div className="flex justify-center gap-2 mt-4 flex-wrap">
-            {allAwards.map((_, index) => (
-              <button
-                key={index}
-                onClick={() => setCurrentSlide(index)}
-                className={`w-2 h-2 rounded-full transition-all ${
-                  index === currentSlide ? 'bg-gray-800 w-6' : 'bg-gray-400'
-                }`}
-                aria-label={`Go to slide ${index + 1}`}
-              />
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* Flagship Events Section - Responsive */}
-      <div ref={flagshipRef} className="min-h-screen flex flex-col justify-center bg-white px-4 sm:px-6 md:px-8 py-12 sm:py-16">
-        <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-gray-800 text-center mb-8 sm:mb-12 md:mb-16">
-          Our flagship Events
-        </h2>
-        <div className="flex flex-col md:flex-row justify-center items-center gap-8 sm:gap-12 md:gap-16 max-w-7xl mx-auto w-full">
-          {flagshipEvents.map((event) => (
-            <div key={event.id} className="flex flex-col items-center w-full max-w-sm">
-              <div className="relative w-full aspect-[4/5] rounded-lg shadow-xl overflow-hidden mb-4 sm:mb-6">
-                <img
-                  src={event.imgSrc}
-                  alt={event.title}
-                  className="w-full h-full object-cover"
-                />
-                <div className="absolute inset-0 bg-black bg-opacity-20"></div>
-                <div className="absolute inset-0 p-4 sm:p-6 flex flex-col justify-between text-white">
-                  <div>
-                    <div className="text-xs font-medium mb-2">Flagship</div>
-                    <h3 className="text-xl sm:text-2xl font-bold mb-2">{event.title}</h3>
-                    <p className="text-xs sm:text-sm opacity-90">{event.description}</p>
-                  </div>
-                  <div className="text-xs opacity-75">Premium Event</div>
-                </div>
-              </div>
-              <button
-                onClick={() => handleKnowMore(event.page)}
-                className="px-6 sm:px-8 py-2.5 sm:py-3 bg-gray-800 text-white rounded-full text-base sm:text-lg font-medium hover:bg-gray-700 transition-colors w-full sm:w-auto"
-              >
-                Know More
-              </button>
-            </div>
-          ))}
-        </div>
-      </div>
+    <div className="relative w-full h-full overflow-hidden rounded-2xl pointer-events-none select-none">
+      {images.map((src, i) => (
+        <img
+          key={src}
+          src={src}
+          alt=""
+          className={`absolute inset-0 w-full h-full object-cover transition-all duration-1000 ease-in-out
+            ${
+              i === index
+                ? "opacity-100 translate-y-0 scale-100"
+                : direction === "up"
+                ? "opacity-0 translate-y-6 scale-105"
+                : "opacity-0 -translate-y-6 scale-105"
+            }`}
+        />
+      ))}
+      <div className="absolute inset-0 bg-black/10" />
     </div>
   );
 };
 
-export default Events;
+/* ------------------ ANIMATED BORDER COMPONENT ------------------ */
+/**
+ * Uses CSS Transitions instead of React State for buttery smooth performance.
+ * It is not affected by scrolling or the main thread.
+ */
+const AnimatedBorder = ({ duration, resetKey }) => {
+  const rectRef = useRef(null);
+  const containerRef = useRef(null);
+  const [perimeter, setPerimeter] = useState(0);
+
+  // 1. Measure the exact path length for responsiveness
+  useEffect(() => {
+    if (!containerRef.current || !rectRef.current) return;
+
+    const updatePerimeter = () => {
+      if (rectRef.current) {
+        setPerimeter(rectRef.current.getTotalLength());
+      }
+    };
+
+    updatePerimeter();
+    
+    // Efficient ResizeObserver
+    const observer = new ResizeObserver(() => {
+      window.requestAnimationFrame(updatePerimeter);
+    });
+    
+    observer.observe(containerRef.current);
+    return () => observer.disconnect();
+  }, []);
+
+  // 2. Trigger the CSS Animation whenever `resetKey` changes
+  useEffect(() => {
+    const rect = rectRef.current;
+    if (!rect || perimeter === 0) return;
+
+    // A. INSTANT RESET: Stop transition and hide the line (offset = perimeter)
+    rect.style.transition = "none";
+    rect.style.strokeDasharray = `${perimeter}`;
+    rect.style.strokeDashoffset = `${perimeter}`;
+
+    // B. FORCE REFLOW: Trigger a browser read to apply the 'none' transition immediately
+    void rect.getBoundingClientRect();
+
+    // C. START ANIMATION: Enable transition and move to 0
+    rect.style.transition = `stroke-dashoffset ${duration}ms linear`;
+    rect.style.strokeDashoffset = "0";
+
+  }, [perimeter, resetKey, duration]);
+
+  return (
+    <div ref={containerRef} className="absolute inset-0 w-full h-full pointer-events-none z-20">
+      <svg className="w-full h-full" style={{ overflow: "visible" }}>
+        <defs>
+          <linearGradient id="animatedGradient">
+            <stop offset="0%" stopColor="#000000">
+              <animate
+                attributeName="stop-color"
+                values="#000000; #4b5563; #000000"
+                dur="2s"
+                repeatCount="indefinite"
+              />
+            </stop>
+            <stop offset="100%" stopColor="#4b5563">
+              <animate
+                attributeName="stop-color"
+                values="#4b5563; #000000; #4b5563"
+                dur="2s"
+                repeatCount="indefinite"
+              />
+            </stop>
+          </linearGradient>
+        </defs>
+
+        {/* Static Background Border */}
+        <rect
+          x="4"
+          y="4"
+          width="calc(100% - 8px)"
+          height="calc(100% - 8px)"
+          rx="20"
+          fill="none"
+          stroke="#e5e7eb"
+          strokeWidth="4"
+        />
+
+        {/* Animated Moving Border */}
+        <rect
+          ref={rectRef}
+          x="4"
+          y="4"
+          width="calc(100% - 8px)"
+          height="calc(100% - 8px)"
+          rx="20"
+          fill="none"
+          stroke="url(#animatedGradient)"
+          strokeWidth="4"
+          strokeLinecap="round"
+          style={{ willChange: "stroke-dashoffset" }} // Hardware Acceleration Hint
+        />
+      </svg>
+    </div>
+  );
+};
+
+/* ------------------ CONTENT COMPONENTS ------------------ */
+const SOTYContent = () => (
+  <div className="w-full h-full flex flex-col items-center justify-center p-6 md:p-12 text-center pointer-events-none">
+    <h1 className="text-[20vw] md:text-[14vw] lg:text-[12vw] font-bold leading-none mb-4 md:mb-8 text-gray-900">
+      SOTY
+    </h1>
+    <p className="text-base md:text-xl max-w-2xl px-4 text-gray-700 font-medium">
+      The "Student of the Year" was a two-day challenge-based event testing
+      participants across physical, mental, and creative domains.
+    </p>
+  </div>
+);
+
+const PlaceItContent = () => (
+  <div className="w-full h-full flex flex-col items-center justify-center p-6 md:p-12 text-center pointer-events-none">
+    <h1 className="text-[20vw] md:text-[14vw] lg:text-[12vw] font-bold leading-none mb-4 md:mb-8 text-gray-900">
+      PlaceIt
+    </h1>
+    <p className="text-base md:text-xl max-w-2xl px-4 text-gray-700 font-medium">
+      Place-It bridges students with EdTech leaders through discussions and an
+      Ideathon that challenges participants to shape the future of education.
+    </p>
+  </div>
+);
+
+/* ------------------ MAIN PAGE ------------------ */
+export default function Creative() {
+  const [currentEvent, setCurrentEvent] = useState(0);
+  const TOTAL_DURATION = 8000; // 8 Seconds per slide
+
+  useEffect(() => {
+    // Simple interval strictly for switching logical state.
+    // The visual animation is now handled by CSS in the child component.
+    const interval = setInterval(() => {
+      setCurrentEvent((prev) => (prev === 0 ? 1 : 0));
+    }, TOTAL_DURATION);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  const activeImages = currentEvent === 0 ? SOTY_IMAGES : PLACEIT_IMAGES;
+
+  return (
+    <div className="w-full min-h-screen bg-gray-50 py-10 md:py-20 select-none">
+      <HorizontalScrollGallery />
+
+      <h2 className="mb-12 md:mb-24 text-center text-3xl md:text-5xl lg:text-6xl font-extrabold px-4">
+        OUR FLAGSHIP EVENTS
+      </h2>
+
+      <div className="w-full px-4 md:px-6 lg:px-12">
+        {/* --- DESKTOP LAYOUT --- */}
+        <div className="hidden md:flex w-full h-[500px] md:h-[600px] lg:h-[700px] gap-3 md:gap-4">
+          <div className="w-32 md:w-48 lg:w-56">
+            <CrossfadePanel images={activeImages} direction="up" />
+          </div>
+
+          <div className="relative flex-1 rounded-2xl md:rounded-3xl overflow-hidden bg-white shadow-xl group">
+            
+            {/* The Border Animation - Pass currentEvent as resetKey */}
+            <AnimatedBorder duration={TOTAL_DURATION} resetKey={currentEvent} />
+
+            {/* SOTY Slide */}
+            <div
+              className={`absolute inset-0 transition-all duration-[800ms] ease-out
+                ${
+                  currentEvent === 0
+                    ? "opacity-100 scale-100 blur-0 z-10"
+                    : "opacity-0 scale-95 blur-sm z-0"
+                }`}
+            >
+              <SOTYContent />
+            </div>
+
+            {/* PlaceIt Slide */}
+            <div
+              className={`absolute inset-0 transition-all duration-[800ms] ease-out
+                ${
+                  currentEvent === 1
+                    ? "opacity-100 scale-100 blur-0 z-10"
+                    : "opacity-0 scale-95 blur-sm z-0"
+                }`}
+            >
+              <PlaceItContent />
+            </div>
+          </div>
+
+          <div className="w-40 md:w-56 lg:w-64">
+            <CrossfadePanel images={activeImages} direction="down" />
+          </div>
+        </div>
+
+        {/* --- MOBILE LAYOUT --- */}
+        <div className="md:hidden flex flex-col gap-4">
+          <div className="w-full h-48">
+            <CrossfadePanel images={activeImages} direction="up" />
+          </div>
+
+          <div className="relative w-full h-[500px] rounded-2xl overflow-hidden bg-white shadow-xl">
+            
+            <AnimatedBorder duration={TOTAL_DURATION} resetKey={currentEvent} />
+
+            <div
+              className={`absolute inset-0 transition-all duration-[800ms] ease-out
+                ${
+                  currentEvent === 0
+                    ? "opacity-100 scale-100 blur-0 z-10"
+                    : "opacity-0 scale-95 blur-sm z-0"
+                }`}
+            >
+              <SOTYContent />
+            </div>
+
+            <div
+              className={`absolute inset-0 transition-all duration-[800ms] ease-out
+                ${
+                  currentEvent === 1
+                    ? "opacity-100 scale-100 blur-0 z-10"
+                    : "opacity-0 scale-95 blur-sm z-0"
+                }`}
+            >
+              <PlaceItContent />
+            </div>
+          </div>
+
+          <div className="w-full h-48">
+            <CrossfadePanel images={activeImages} direction="down" />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
