@@ -12,8 +12,8 @@ const Main = () => {
     // Animate first line words
     const line1Words = line1Ref.current.querySelectorAll('.word');
     line1Words.forEach((word, index) => {
-      const delay = index * 80; // Stagger words
-      const duration = 600 + (index * 20); // Slightly different speeds
+      const delay = index * 80;
+      const duration = 600 + (index * 20);
       
       setTimeout(() => {
         word.style.opacity = '1';
@@ -25,7 +25,7 @@ const Main = () => {
     // Animate second line words
     const line2Words = line2Ref.current.querySelectorAll('.word');
     line2Words.forEach((word, index) => {
-      const delay = 400 + (index * 80); // Start after line 1 begins
+      const delay = 400 + (index * 80);
       const duration = 600 + (index * 20);
       
       setTimeout(() => {
@@ -41,7 +41,6 @@ const Main = () => {
       soulRef.current.style.transform = 'translate(0, -4px)';
       soulRef.current.style.transition = 'all 700ms cubic-bezier(0.34, 1.56, 0.64, 1)';
       
-      // Highlight appears after Soul with delay
       setTimeout(() => {
         highlightSoulRef.current.style.width = '100%';
         highlightSoulRef.current.style.transition = 'width 500ms cubic-bezier(0.34, 1.56, 0.64, 1)';
@@ -54,7 +53,6 @@ const Main = () => {
       mindRef.current.style.transform = 'translate(0, 4px)';
       mindRef.current.style.transition = 'all 700ms cubic-bezier(0.34, 1.56, 0.64, 1)';
       
-      // Highlight appears after Mind with delay
       setTimeout(() => {
         highlightMindRef.current.style.width = '100%';
         highlightMindRef.current.style.transition = 'width 500ms cubic-bezier(0.34, 1.56, 0.64, 1)';
@@ -64,18 +62,24 @@ const Main = () => {
 
   return (
     <section id="home" className="h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-gray-100">
-      <div className='w-full h-screen flex items-center justify-center relative'>
-        <div className='w-full px-4 sm:px-8 md:px-12 lg:px-16 xl:px-32 relative z-10'>
-          {/* Line 1 */}
-          <h1 
+      <div className='w-full h-screen flex items-center justify-center relative overflow-hidden'>
+        <div className='w-full px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 2xl:px-32 relative z-10'>
+          {/* Line 1: Communication for the Soul, */}
+          <div 
             ref={line1Ref}
-            className='text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl 2xl:text-8xl font-bold text-black text-center leading-tight mb-2 sm:mb-3 md:mb-4'
+            className='text-2xl xs:text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl 2xl:text-8xl font-bold text-black text-center leading-tight mb-2 sm:mb-3 md:mb-4'
           >
-            <span className="word inline-block opacity-0" style={{ transform: 'translateX(-20px)' }}>Communication</span>
+            <span className="word inline-block opacity-0" style={{ transform: 'translateX(-20px)' }}>
+              Communication
+            </span>
             {' '}
-            <span className="word inline-block opacity-0" style={{ transform: 'translateX(-20px)' }}>for</span>
+            <span className="word inline-block opacity-0" style={{ transform: 'translateX(-20px)' }}>
+              for
+            </span>
             {' '}
-            <span className="word inline-block opacity-0" style={{ transform: 'translateX(-20px)' }}>the</span>
+            <span className="word inline-block opacity-0" style={{ transform: 'translateX(-20px)' }}>
+              the
+            </span>
             {' '}
             <span className="relative inline-block">
               <span 
@@ -87,22 +91,28 @@ const Main = () => {
               </span>
               <span 
                 ref={highlightSoulRef}
-                className="absolute bottom-0 left-0 h-3 bg-blue-200/40 -z-10"
+                className="absolute bottom-1 sm:bottom-1.5 md:bottom-2 left-0 h-2 sm:h-2.5 md:h-3 lg:h-4 bg-blue-200/40 -z-10"
                 style={{ width: '0%' }}
               />
             </span>
-          </h1>
+          </div>
 
-          {/* Line 2 */}
-          <h1 
+          {/* Line 2: Innovation for the Mind. */}
+          <div 
             ref={line2Ref}
-            className='text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl 2xl:text-8xl font-bold text-black text-center leading-tight'
+            className='text-2xl xs:text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl 2xl:text-8xl font-bold text-black text-center leading-tight'
           >
-            <span className="word inline-block opacity-0" style={{ transform: 'translateX(-20px)' }}>Innovation</span>
+            <span className="word inline-block opacity-0" style={{ transform: 'translateX(-20px)' }}>
+              Innovation
+            </span>
             {' '}
-            <span className="word inline-block opacity-0" style={{ transform: 'translateX(-20px)' }}>for</span>
+            <span className="word inline-block opacity-0" style={{ transform: 'translateX(-20px)' }}>
+              for
+            </span>
             {' '}
-            <span className="word inline-block opacity-0" style={{ transform: 'translateX(-20px)' }}>the</span>
+            <span className="word inline-block opacity-0" style={{ transform: 'translateX(-20px)' }}>
+              the
+            </span>
             {' '}
             <span className="relative inline-block">
               <span 
@@ -114,11 +124,11 @@ const Main = () => {
               </span>
               <span 
                 ref={highlightMindRef}
-                className="absolute bottom-0 left-0 h-3 bg-blue-200/40 -z-10"
+                className="absolute bottom-1 sm:bottom-1.5 md:bottom-2 left-0 h-2 sm:h-2.5 md:h-3 lg:h-4 bg-blue-200/40 -z-10"
                 style={{ width: '0%' }}
               />
             </span>
-          </h1>
+          </div>
         </div>
       </div>
     </section>

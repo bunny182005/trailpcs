@@ -198,7 +198,7 @@ export default function Creative() {
   const activeImages = currentEvent === 0 ? SOTY_IMAGES : PLACEIT_IMAGES;
 
   return (
-    <div className="w-full min-h-screen bg-gray-50 py-10 md:py-20 select-none">
+    <div className="w-full min-h-screen bg-white py-10 md:py-20 select-none">
       <HorizontalScrollGallery />
 
       <h2 className="mb-12 md:mb-24 text-center text-3xl md:text-5xl lg:text-6xl font-extrabold px-4">

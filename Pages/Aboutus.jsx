@@ -140,7 +140,7 @@ const Aboutus = () => {
       </div>
 
       {/* ================= TIMELINE ================= */}
-      <div className="relative w-full py-20 px-4 sm:px-8 overflow-hidden bg-white">
+      <div className="relative w-full py-20 px-4 sm:px-8 overflow-hidden   bg-white">
         {/* Background Watermark */}
         <div className="absolute inset-0 opacity-[0.03] pointer-events-none flex justify-center items-center select-none">
           <span className="text-[20vw] font-extrabold text-black whitespace-nowrap">
@@ -160,7 +160,7 @@ const Aboutus = () => {
       </div>
 
       {/* ================= RETHINKING ================= */}
-      <div className="w-full">
+      <div className="w-full mt-5 ">
         <RethinkingSection />
       </div>
 

@@ -13,7 +13,7 @@ const Memories = () => {
       <div className="w-full min-h-screen grid grid-cols-1 lg:grid-cols-3 gap-0">
         
         {/* LEFT SECTION: Circular Text */}
-        <div className="col-span-1 flex items-center justify-center py-10 lg:py-0 bg-white border-r border-gray-100">
+        <div className="col-span-1 flex items-center justify-center py-10 lg:py-0 bg-white  ">
           <CircularTextScroller
             texts={[
               "Emotion",

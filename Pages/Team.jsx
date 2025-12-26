@@ -144,7 +144,7 @@ const Team = () => {
 
   return (
     <div className="min-h-screen bg-white mt-24">
-      <h2 className="text-center text-5xl sm:text-6xl lg:text-8xl font-extrabold mb-20">
+      <h2 className="text-center text-5xl sm:text-6xl lg:text-8xl font-extrabold mb-28">
         CURRENT BOARD
       </h2>
 
