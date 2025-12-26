@@ -11,11 +11,11 @@ const scrollToContact = () => {
   if (footer) {
     footer.scrollIntoView({
       behavior: "smooth",
-      block: "start", // Changed to 'start' to ensure the top of the footer is seen
+      block: "start",
     });
   } else {
-    // Fallback: If no ID found, scroll to the very bottom of the page
-    console.warn("Element #contact-footer not found. Scrolling to bottom.");
+    // Fallback: If ID not found, scroll to bottom
+    console.warn("Footer ID not found, scrolling to bottom");
     window.scrollTo({
       top: document.documentElement.scrollHeight,
       behavior: "smooth",
@@ -52,10 +52,7 @@ const TimelineItem = ({ year, children }) => {
   const suffix = year.replace(number, "");
 
   return (
-    <div
-      ref={ref}
-      className="flex flex-col items-center text-center w-full"
-    >
+    <div ref={ref} className="flex flex-col items-center text-center w-full">
       <span className="text-3xl sm:text-4xl md:text-5xl font-bold text-black mb-2 inline-flex justify-center h-12 sm:h-16">
         {start ? (
           <CountUp end={number} suffix={suffix} duration={2.5} />
@@ -81,7 +78,9 @@ const Aboutus = () => {
 
       {/* MOBILE / TABLET LAYOUT (< 1024px) */}
       <div className="flex flex-col lg:hidden min-h-screen w-full relative">
-        <div className="flex flex-col justify-center items-center text-center px-6 py-16 bg-gray-50 flex-grow relative z-10">
+        
+        {/* TEXT CONTAINER: High Z-Index to sit ON TOP of any animation below */}
+        <div className="flex flex-col justify-center items-center text-center px-6 py-16 bg-gray-50 flex-grow relative z-50">
           <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-black mb-4 leading-tight">
             IEEE PCS
           </h1>
@@ -90,17 +89,19 @@ const Aboutus = () => {
             technical expertise and professional expression.
           </p>
           
-          {/* FIXED BUTTON: Added z-index, relative positioning, and cursor-pointer */}
+          {/* FIXED BUTTON */}
           <button
             type="button"
             onClick={scrollToContact}
-            className="mt-8 px-6 py-2 bg-black text-white text-sm rounded-lg hover:bg-gray-800 transition shadow-lg relative z-20 cursor-pointer active:scale-95 transform duration-150"
+            // pointer-events-auto ensures this specific element is clickable
+            // touch-manipulation improves tap response on mobile
+            className="mt-8 px-6 py-2 bg-black text-white text-sm rounded-lg hover:bg-gray-800 transition shadow-lg relative z-[60] cursor-pointer pointer-events-auto touch-manipulation active:scale-95 transform duration-150"
           >
             Get Involved
           </button>
         </div>
 
-        {/* SwapSection takes remaining space or own height */}
+        {/* SWAP SECTION CONTAINER: Low Z-Index to stay BEHIND */}
         <div className="w-full relative z-0">
           <SwapSection />
         </div>
@@ -135,7 +136,7 @@ const Aboutus = () => {
               <button
                 type="button"
                 onClick={scrollToContact}
-                className="px-8 py-3 bg-black text-white text-lg rounded-lg hover:bg-gray-800 hover:scale-105 transition transform duration-300 cursor-pointer"
+                className="px-8 py-3 bg-black text-white text-lg rounded-lg hover:bg-gray-800 hover:scale-105 transition transform duration-300 cursor-pointer pointer-events-auto"
               >
                 Get Involved
               </button>
@@ -143,23 +144,20 @@ const Aboutus = () => {
           </div>
 
           {/* Bottom Half: Component */}
-          <div className="w-full h-full relative overflow-hidden">
-             {/* Ensure parent has explicit dimensions if SwapSection relies on % */}
+          <div className="w-full h-full relative overflow-hidden z-0">
             <SwapSection />
           </div>
         </div>
       </div>
 
       {/* ================= TIMELINE ================= */}
-      <div className="relative w-full py-20 px-4 sm:px-8 overflow-hidden bg-white">
-        {/* Background Watermark */}
+      <div className="relative w-full py-20 px-4 sm:px-8 overflow-hidden bg-white z-10">
         <div className="absolute inset-0 opacity-[0.03] pointer-events-none flex justify-center items-center select-none">
           <span className="text-[20vw] font-extrabold text-black whitespace-nowrap">
             IEEE PCS
           </span>
         </div>
 
-        {/* Stats Grid: 2 cols on mobile, 4 cols on desktop */}
         <div className="relative z-10 max-w-7xl mx-auto">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-y-12 gap-x-4">
             <TimelineItem year="250+">Members</TimelineItem>
@@ -171,7 +169,7 @@ const Aboutus = () => {
       </div>
 
       {/* ================= RETHINKING ================= */}
-      <div className="w-full mt-5">
+      <div className="w-full mt-5 relative z-10">
         <RethinkingSection />
       </div>
 
