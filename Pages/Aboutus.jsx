@@ -9,13 +9,15 @@ import RethinkingSection from "../Components/RethinkingSection.jsx";
 const scrollToContact = () => {
   const footer = document.getElementById("contact-footer");
   if (footer) {
-    footer.scrollIntoView({
-      behavior: "smooth",
-      block: "start",
+    // using window.scrollTo allows for better control in some mobile browsers
+    const y = footer.getBoundingClientRect().top + window.scrollY;
+    
+    window.scrollTo({
+      top: y,
+      behavior: "smooth"
     });
   } else {
-    // Fallback: If ID not found, scroll to bottom
-    console.warn("Footer ID not found, scrolling to bottom");
+    console.warn("Element #contact-footer not found. Scrolling to bottom.");
     window.scrollTo({
       top: document.documentElement.scrollHeight,
       behavior: "smooth",
@@ -73,13 +75,22 @@ const TimelineItem = ({ year, children }) => {
 const Aboutus = () => {
   return (
     <div className="w-full bg-white overflow-x-hidden">
+      
+      {/* GLOBAL STYLE INJECTION:
+         Forces the entire HTML page to accept smooth scrolling.
+      */}
+      <style>{`
+        html {
+          scroll-behavior: smooth;
+        }
+      `}</style>
 
       {/* ================= HERO ================= */}
 
       {/* MOBILE / TABLET LAYOUT (< 1024px) */}
       <div className="flex flex-col lg:hidden min-h-screen w-full relative">
         
-        {/* TEXT CONTAINER: High Z-Index to sit ON TOP of any animation below */}
+        {/* TEXT CONTAINER: Z-INDEX 50 ensures it's above animations */}
         <div className="flex flex-col justify-center items-center text-center px-6 py-16 bg-gray-50 flex-grow relative z-50">
           <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-black mb-4 leading-tight">
             IEEE PCS
@@ -89,19 +100,17 @@ const Aboutus = () => {
             technical expertise and professional expression.
           </p>
           
-          {/* FIXED BUTTON */}
+          {/* BUTTON: Explicit pointer-events and touch-action for mobile responsiveness */}
           <button
             type="button"
             onClick={scrollToContact}
-            // pointer-events-auto ensures this specific element is clickable
-            // touch-manipulation improves tap response on mobile
             className="mt-8 px-6 py-2 bg-black text-white text-sm rounded-lg hover:bg-gray-800 transition shadow-lg relative z-[60] cursor-pointer pointer-events-auto touch-manipulation active:scale-95 transform duration-150"
           >
             Get Involved
           </button>
         </div>
 
-        {/* SWAP SECTION CONTAINER: Low Z-Index to stay BEHIND */}
+        {/* SWAP SECTION: Z-INDEX 0 keeps it behind the text */}
         <div className="w-full relative z-0">
           <SwapSection />
         </div>
