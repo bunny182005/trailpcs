@@ -22,17 +22,12 @@ const HorizontalScrollGallery = () => {
   ];
 
   useEffect(() => {
-    // 1. PREMIUM PHYSICS CONFIGURATION
-    // normalizeScroll: Intercepts native touch/wheel to apply GSAP's smooth physics
-    // This eliminates the "jitter" between the browser's scroll thread and the animation
-    ScrollTrigger.normalizeScroll({
-      allowNestedScroll: true,
-      lockAxis: false,
-      momentum: (self) => Math.min(3, self.velocityY / 1000), // Cap momentum for control
-      type: "touch,wheel,pointer", // Apply to all input types
-    });
-
+    // 1. CONFIG: Stabilize Mobile Scrolling
+    // This stops the address bar resize from "jumping" the page
     ScrollTrigger.config({ ignoreMobileResize: true });
+    
+    // This unifies the touch physics, preventing the "fight" between vertical/horizontal
+    ScrollTrigger.normalizeScroll(true);
 
     const section = sectionRef.current;
     const track = trackRef.current;
@@ -42,54 +37,49 @@ const HorizontalScrollGallery = () => {
     const setupAnimation = () => {
       if (track && section) {
         ctx = gsap.context(() => {
-          const trackWidth = track.scrollWidth;
-          const windowWidth = window.innerWidth;
-          const scrollAmount = trackWidth - windowWidth;
+          const getScrollAmount = () => {
+            const trackWidth = track.scrollWidth;
+            const windowWidth = window.innerWidth;
+            return trackWidth - windowWidth;
+          };
 
-          // --------------------------------------------------------
-          // 2. THE MAIN TIMELINE
-          // --------------------------------------------------------
-          const tl = gsap.timeline({
+          const scrollAmount = getScrollAmount();
+          const isMobile = window.innerWidth < 768;
+
+          gsap.to(track, {
+            x: -scrollAmount,
+            ease: "none", // Linear is required for pin to feel 1:1
             scrollTrigger: {
               trigger: section,
               start: "top top",
-              end: () => `+=${scrollAmount}`, 
               
-              // KEY TO PREMIUM FEEL:
-              // A value of 1-2 creates "weight". The content lags behind your finger
-              // slightly, smoothing out all micro-jitters.
+              // 2. FLOW ADJUSTMENT
+              // On mobile, we use exactly 'scrollAmount'. 
+              // (Previously it was *2, which made it feel heavy/slow).
+              // This makes the images glide faster with less finger dragging.
+              end: () => `+=${isMobile ? scrollAmount : scrollAmount}`, 
+              
+              // 3. SMOOTHNESS (BUTTER FACTOR)
+              // 0 = Rigid/Instant. 
+              // 1 = Smooth. 
+              // 1.5 = Very Smooth/Buttery (Hides micro-jitters)
               scrub: 1.5, 
               
               pin: true,
-              anticipatePin: 1,
+              anticipatePin: 1, // Smooths the entry into the pinned state
               invalidateOnRefresh: true,
             },
           });
-
-          // A. Move the Track Left
-          tl.to(track, {
-            x: -scrollAmount,
-            ease: "none", // Must be linear for the scroll mapping
-            duration: 1,  // Duration doesn't matter with scrub, just ratio
-          });
-
-          // B. PARALLAX EFFECT (The "Expensive" Look)
-          // We select all images inside the track and move them slightly RIGHT
-          // while the track moves LEFT. This creates depth.
-          tl.to(".gallery-image", {
-            xPercent: 20, // Move image 20% inside its frame
-            ease: "none",
-            duration: 1,
-          }, "<"); // "<" syncs this strictly with the track movement
-
         }, section);
       }
     };
 
     setupAnimation();
 
+    // Resize Handler
     let lastWidth = window.innerWidth;
     const handleResize = () => {
+      // Only refresh if width changes (orientation change), ignore height (address bar)
       if (window.innerWidth !== lastWidth) {
         lastWidth = window.innerWidth;
         if (ctx) ctx.revert();
@@ -103,7 +93,7 @@ const HorizontalScrollGallery = () => {
     return () => {
       window.removeEventListener("resize", handleResize);
       if (ctx) ctx.revert();
-      ScrollTrigger.normalizeScroll(false); // Clean up
+      ScrollTrigger.normalizeScroll(false);
     };
   }, []);
 
@@ -111,11 +101,12 @@ const HorizontalScrollGallery = () => {
     <section
       ref={sectionRef}
       className="relative w-full h-screen bg-white overflow-hidden"
+      // Prevents rubber-band bounce on iOS which disrupts flow
       style={{ overscrollBehavior: "none" }}
     >
       {/* TITLE */}
       <div className="absolute top-[10%] md:top-[15%] left-1/2 -translate-x-1/2 z-20 w-full px-4 text-center pointer-events-none">
-        <h2 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-tight text-black mix-blend-difference">
+        <h2 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-tight text-black">
           OUR EVENTS
         </h2>
       </div>
@@ -125,9 +116,9 @@ const HorizontalScrollGallery = () => {
         ref={trackRef}
         className="
           absolute top-1/2 -translate-y-1/2 left-0 
-          flex h-[60vh] md:h-[70vh] items-center
-          gap-8 px-8 
-          md:gap-16 md:px-24
+          flex h-full items-center
+          gap-6 px-8 
+          md:gap-12 md:px-24
           will-change-transform
         "
       >
@@ -136,44 +127,46 @@ const HorizontalScrollGallery = () => {
             key={idx}
             className="
               group relative 
-              w-[85vw] h-full
-              md:w-[50vh] md:h-full
+              w-[85vw] h-[55vh]
+              md:w-[380px] md:h-[480px]
+              rounded-2xl 
+              border-2 md:border-4 border-black 
+              bg-white shadow-xl 
               overflow-hidden
               flex-shrink-0
-              grayscale hover:grayscale-0 transition-all duration-700
             "
           >
-            {/* IMAGE CONTAINER WITH PARALLAX CLASS */}
-            <div className="w-full h-full overflow-hidden rounded-2xl relative">
-                <img
-                src={src}
-                alt={`Event ${idx + 1}`}
-                className="
-                    gallery-image
-                    absolute
-                    w-[120%] h-full /* 120% width to allow parallax movement */
-                    left-[-10%]     /* Start slightly to the left */
-                    object-cover
-                    bg-gray-200
-                "
-                />
-            </div>
+            {/* IMAGE */}
+            <img
+              src={src}
+              alt={`Event ${idx + 1}`}
+              className="
+                w-full h-full
+                object-cover
+                bg-gradient-to-br from-gray-100 to-gray-200
+                transition-transform duration-500 ease-out
+                group-hover:scale-110
+              "
+            />
 
             {/* OVERLAY */}
             <div
               className="
                 absolute inset-0
-                bg-gradient-to-t from-black/80 via-transparent to-transparent
-                opacity-0 group-hover:opacity-100
-                transition-opacity duration-500
-                flex flex-col justify-end p-8
-                pointer-events-none
-                rounded-2xl
+                bg-gradient-to-t from-black via-black/50 to-transparent
+                opacity-100 md:opacity-0 md:group-hover:opacity-100
+                transition-opacity duration-300
+                flex flex-col justify-end p-6
               "
             >
-              <h3 className="text-white text-3xl font-bold translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
-                Event {idx + 1}
-              </h3>
+              <div className="translate-y-0 md:translate-y-6 md:group-hover:translate-y-0 transition-transform duration-300">
+                <h3 className="text-white text-2xl font-bold mb-2">
+                  Event {idx + 1}
+                </h3>
+                <p className="text-white/90 text-sm leading-relaxed">
+                  Brief description...
+                </p>
+              </div>
             </div>
           </div>
         ))}
