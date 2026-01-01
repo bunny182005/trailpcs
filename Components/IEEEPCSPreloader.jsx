@@ -1,50 +1,68 @@
 import React, { useState, useEffect } from 'react';
+// Ensure this path matches where you keep your helper function
+import { preloadImages } from "../utils/preloadImages";
+
+const IMAGES_TO_PRELOAD = [
+  "/2025/c.png",
+  "/2025/dh.png",
+  "/2025/eh.png",
+  "/2025/vc.png",
+  "/2025/s.png",
+  "/2025/th2.png",
+  "/2025/mh.png",
+  "/2025/cs.png",
+  "/2025/p&m.png",
+];
 
 export default function IEEEPCSPreloader({ onComplete }) {
   const [progress, setProgress] = useState(0);
   const [isExiting, setIsExiting] = useState(false);
-  const [shouldShow, setShouldShow] = useState(false);
+  
+  // 🔹 CHANGED: Initialize to true so it always shows on mount/refresh
+  const [shouldShow, setShouldShow] = useState(true);
 
   const EXIT_ANIMATION_DURATION = 1000;
 
+  /* 🔹 BACKGROUND IMAGE PRELOADING */
   useEffect(() => {
-    const hasRenderedThisSession = window.sessionStorage.getItem('has-rendered');
-    const isPageLoad = !window.performance || performance.navigation.type === 1 || !hasRenderedThisSession;
-    
-    if (isPageLoad || !hasRenderedThisSession) {
-      setShouldShow(true);
-      window.sessionStorage.setItem('has-rendered', 'true');
-    } else {
-      if (onComplete) onComplete();
-    }
-  }, [onComplete]);
+    // Start downloading images immediately in the background
+    preloadImages(IMAGES_TO_PRELOAD);
+  }, []);
 
+  /* 🔹 PROGRESS TIMER LOGIC */
   useEffect(() => {
-    if (!shouldShow) return;
-
     const interval = setInterval(() => {
       setProgress((prev) => {
+        // If we reach 100%, stop the timer and start exit sequence
         if (prev >= 100) {
           clearInterval(interval);
           setTimeout(() => setIsExiting(true), 500);
           return 100;
         }
+        // Increment progress
         return prev + 1;
       });
-    }, 50);
+    }, 50); // Speed of the loader
 
     return () => clearInterval(interval);
-  }, [shouldShow]);
+  }, []);
 
+  /* 🔹 EXIT & CLEANUP LOGIC */
   useEffect(() => {
-    if (isExiting && shouldShow) {
+    if (isExiting) {
       const timer = setTimeout(() => {
+        // Tell the parent component we are done
         if (onComplete) onComplete();
+        
+        // Unmount self locally (optional, depending on how parent handles it)
+        setShouldShow(false);
       }, EXIT_ANIMATION_DURATION);
+      
       return () => clearTimeout(timer);
     }
-  }, [isExiting, onComplete, shouldShow]);
+  }, [isExiting, onComplete]);
 
+  // If the animation is finished, don't render anything
   if (!shouldShow) return null;
 
   return (
@@ -71,17 +89,16 @@ export default function IEEEPCSPreloader({ onComplete }) {
         {/* Main Wrapper */}
         <div className="relative inline-block">
           
-          {/* 1. Background Gray Text (with padding to reserve space for S) */}
+          {/* 1. Background Gray Text */}
           <h1 className="font-black leading-none tracking-tighter text-zinc-600 px-4 py-2" style={{ fontSize: '20vw' }}>
             IEEE PCS
           </h1>
 
           {/* 2. Clipping Container for White Text */}
           <div 
-            className="absolute left-0 bottom-0 w-full overflow-hidden px-4 py-2" 
+            className="absolute left-0 bottom-0 w-full overflow-hidden px-4 py-2 transition-all duration-300 ease-linear" 
             style={{ height: `${progress}%` }}
           >
-             {/* Inner White Text (Must match padding of background text exactly) */}
              <h1 
               className="font-black leading-none tracking-tighter absolute bottom-0 left-0 right-0 px-4 py-2" 
               style={{ 
@@ -97,12 +114,12 @@ export default function IEEEPCSPreloader({ onComplete }) {
             </h1>
           </div>
 
-          {/* 3. Wave SVG - Positioned absolutely to follow the progress line */}
+          {/* 3. Wave SVG */}
           <div 
-            className="absolute left-0 w-full pointer-events-none mix-blend-screen"
+            className="absolute left-0 w-full pointer-events-none mix-blend-screen transition-all duration-300 ease-linear"
             style={{ 
               bottom: `${progress}%`, 
-              transform: 'translateY(50%)', // Centers wave on the line
+              transform: 'translateY(50%)', 
               zIndex: 20 
             }}
           >
