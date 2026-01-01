@@ -23,10 +23,7 @@ const HorizontalScrollGallery = () => {
 
   useEffect(() => {
     // 1. CONFIG: Stabilize Mobile Scrolling
-    // This stops the address bar resize from "jumping" the page
     ScrollTrigger.config({ ignoreMobileResize: true });
-    
-    // This unifies the touch physics, preventing the "fight" between vertical/horizontal
     ScrollTrigger.normalizeScroll(true);
 
     const section = sectionRef.current;
@@ -48,25 +45,24 @@ const HorizontalScrollGallery = () => {
 
           gsap.to(track, {
             x: -scrollAmount,
-            ease: "none", // Linear is required for pin to feel 1:1
+            ease: "none",
             scrollTrigger: {
               trigger: section,
               start: "top top",
               
-              // 2. FLOW ADJUSTMENT
-              // On mobile, we use exactly 'scrollAmount'. 
-              // (Previously it was *2, which made it feel heavy/slow).
-              // This makes the images glide faster with less finger dragging.
-              end: () => `+=${isMobile ? scrollAmount : scrollAmount}`, 
+              // ⚡️ SPEED TWEAK ⚡️
+              // On mobile, we use 'scrollAmount * 0.5'.
+              // This means scrolling 500px vertically moves the gallery 1000px horizontally.
+              // Result: Much faster, "lighter" scrolling.
+              end: () => `+=${isMobile ? scrollAmount * 0.5 : scrollAmount}`, 
               
-              // 3. SMOOTHNESS (BUTTER FACTOR)
-              // 0 = Rigid/Instant. 
-              // 1 = Smooth. 
-              // 1.5 = Very Smooth/Buttery (Hides micro-jitters)
-              scrub: 1.5, 
+              // ⚡️ FEEL TWEAK ⚡️
+              // Reduced scrub from 1.5 to 0.5 on mobile.
+              // This removes the "drag" feeling, making the images stick closer to your finger.
+              scrub: isMobile ? 0.5 : 1, 
               
               pin: true,
-              anticipatePin: 1, // Smooths the entry into the pinned state
+              anticipatePin: 1,
               invalidateOnRefresh: true,
             },
           });
@@ -76,10 +72,8 @@ const HorizontalScrollGallery = () => {
 
     setupAnimation();
 
-    // Resize Handler
     let lastWidth = window.innerWidth;
     const handleResize = () => {
-      // Only refresh if width changes (orientation change), ignore height (address bar)
       if (window.innerWidth !== lastWidth) {
         lastWidth = window.innerWidth;
         if (ctx) ctx.revert();
@@ -101,7 +95,6 @@ const HorizontalScrollGallery = () => {
     <section
       ref={sectionRef}
       className="relative w-full h-screen bg-white overflow-hidden"
-      // Prevents rubber-band bounce on iOS which disrupts flow
       style={{ overscrollBehavior: "none" }}
     >
       {/* TITLE */}
